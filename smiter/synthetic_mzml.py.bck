@@ -1,0 +1,189 @@
+"""Main module."""
+import io
+from typing import Callable, Dict, List, Tuple, Union
+
+import numpy as np
+import pyqms
+import scipy as sci
+from psims.mzml import MzMLWriter
+
+
+class Scan(dict):
+    """Summary."""
+
+    def __init__(self, data: dict = None):
+        """Summary.
+
+        Args:
+            dict (TYPE): Description
+        """
+        self.update(data)
+
+    @property
+    def mz(self):
+        """Summary."""
+        pass
+
+    @property
+    def i(self):
+        """Summary."""
+        pass
+
+    @property
+    def id(self):
+        """Summary."""
+        pass
+
+    @property
+    def precursor_mz(self):
+        """Summary."""
+        pass
+
+    @property
+    def precursor_i(self):
+        """Summary."""
+        pass
+
+    @property
+    def precursor_charge(self):
+        """Summary."""
+        pass
+
+    @property
+    def precursor_scan_id(self):
+        """Summary."""
+        pass
+
+    @property
+    def retention_time(self):
+        """Summary."""
+        pass
+
+
+def write_mzml(
+    file: Union[str, io.TextIOWrapper],
+    molecules: List[str],
+    fragmentation_function: Callable[[str], List[Tuple[float, float]]],
+    peak_properties: Dict[str, dict] = None,
+) -> str:
+    """Write mzML file with chromatographic peaks and fragment spectra for the given molecules.
+
+    Args:
+        file (Union[str, io.TextIOWrapper]): Description
+        molecules (List[str]): Description
+        fragmentation_function (Callable[[str], List[Tuple[float, float]]], optional): Description
+        peak_properties (Dict[str, dict], optional): Description
+    """
+    filename = file if isinstance(file, str) else file.name
+    if peak_properties is None:
+        peak_properties = {}
+    scans = generate_scans(molecules, peak_properties, fragmentation_function)
+    write_scans(file, scans)
+    return filename
+
+
+def generate_scans(
+    molecules: List[str],
+    peak_properties: Dict[str, dict],
+    fragmentation_function: Callable[[str], List[Tuple[float, float]]],
+) -> List[Tuple[Scan, List[Scan]]]:
+    """Generate list containing list with MS1 scan and corresponding MS2 scans.
+
+    Args:
+        molecules (List[str]): Description
+        peak_properties (Dict[str, dict], optional): Description
+        fragmentation_function (Callable[[str], List[Tuple[float, float]]], optional): Description
+    """
+    scan_list: List[Tuple[Scan, List[Scan]]] = []
+
+    # TODO put params in own file
+    # required params
+    spec_rt_diff = 0.0030  # type: int  # seconds
+
+    number_of_ms1_scans = sum([peak_properties[mol]['ms1_scans'] for mol in molecules])
+    number_of_ms2_scans = sum([peak_properties[mol]['ms2_scans_per_ms1'] for mol in molecules])
+    total_scan_count = number_of_ms1_scans + number_of_ms2_scans
+
+    current_rt = 0
+    for scan_id in range(total_scan_count):
+        pass
+
+    return scan_list
+
+
+def write_scans(
+    file: Union[str, io.TextIOWrapper], scans: List[Tuple[Scan, List[Scan]]]
+) -> None:
+    """Generate given scans to mzML file.
+
+    Args:
+        file (Union[str, io.TextIOWrapper]): Description
+        scans (List[Tuple[Scan, List[Scan]]]): Description
+
+    Returns:
+        None: Description
+    """
+    with MzMLWriter(file) as writer:
+        # Add default controlled vocabularies
+        writer.controlled_vocabularies()
+        # Open the run and spectrum list sections
+        with writer.run(id="Simulated Run"):
+            spectrum_count = len(scans) + sum([len(products) for _, products in scans])
+            with writer.spectrum_list(count=spectrum_count):
+                for scan, products in scans:
+                    # Write Precursor scan
+                    writer.write_spectrum(
+                        scan.mz,
+                        scan.i,
+                        id=scan.id,
+                        params=[
+                            "MS1 Spectrum",
+                            {"ms level": 1},
+                            {"total ion current": sum(scan.i)},
+                        ],
+                    )
+                    # Write MSn scans
+                    for prod in products:
+                        writer.write_spectrum(
+                            prod.mz,
+                            prod.i,
+                            id=prod.id,
+                            params=[
+                                "MSn Spectrum",
+                                {"ms level": 2},
+                                {"total ion current": sum(prod.i)},
+                            ],
+                            # Include precursor information
+                            precursor_information={
+                                "mz": prod.precursor_mz,
+                                "intensity": prod.precursor_i,
+                                "charge": prod.precursor_charge,
+                                "scan_id": prod.precursor_scan_id,
+                            },
+                        )
+    return
+
+
+# class SyntheticMzML(object):
+#     def __init__(
+#         self,
+#         file: Union[str, io.TextIOWrapper] = None,
+#         controlled_vocabulary: list = None,
+#         scans: List[dict, List[dict]] = None,
+#         scan_params: dict = None,
+#     ) -> None:
+#         if isinstance(file, str):
+#             self.filename = file
+#             self.file_object = open(self.filename)
+#         elif isinstance(file, io.TextIOWrapper):
+#             self.filename = file.name
+#             self.file_object = file
+#         else:
+#             raise Exception("file argument must be either string or io.TextIOWrapper")
+#         self.writer = MzMLWriter(self.file_object, vocabularies=controlled_vocabulary,)
+
+#     def _write_mzml_header(self):
+#         pass
+
+#     def write_scans(self):
+#         pass

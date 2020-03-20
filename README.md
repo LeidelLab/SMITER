@@ -1,2 +1,0 @@
-# SMITER
-Synthetic Mzml wrITER
