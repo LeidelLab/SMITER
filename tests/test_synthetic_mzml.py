@@ -90,5 +90,5 @@ def test_write_inosine_gamma_mzml():
         if spec.ms_level == 1:
             intensities.append(spec.i[0])
     # assert peaks are gauss distributed
-    t = kstest(intensities, "gamma", args=(5, 0, 20))
+    t = kstest(intensities, "gamma", args=(3, 0, 20))
     assert t.pvalue < 5e-4
