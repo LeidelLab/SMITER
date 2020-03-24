@@ -7,6 +7,8 @@ import numpy as np
 import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
+from smiter.fragmentation_functions import AbstractFragmentor
+from smiter.lib import calc_mz
 from smiter.peak_distribution import distributions
 
 
@@ -89,9 +91,9 @@ class Scan(dict):
 def write_mzml(
     file: Union[str, io.TextIOWrapper],
     molecules: List[str],
-    fragmentation_function: Callable[[str], List[Tuple[float, float]]],
-    peak_properties: Dict[str, dict] = None,
-    mzml_params: Dict[str, Union[int, float, str]] = None,
+    fragmentor: AbstractFragmentor,
+    peak_properties: Dict[str, dict],
+    mzml_params: Dict[str, Union[int, float, str]],
 ) -> str:
     """Write mzML file with chromatographic peaks and fragment spectra for the given molecules.
 
@@ -101,15 +103,12 @@ def write_mzml(
         fragmentation_function (Callable[[str], List[Tuple[float, float]]], optional): Description
         peak_properties (Dict[str, dict], optional): Description
     """
-    if mzml_params is None:
-        ## For debugging
-        mzml_params = {"gradient_length": 30}
     filename = file if isinstance(file, str) else file.name
     scans = []
     isotopologue_lib = generate_molecule_isotopologue_lib(molecules)
     if len(isotopologue_lib) > 0:
         scans, scan_dict = generate_scans(
-            isotopologue_lib, peak_properties, fragmentation_function, mzml_params
+            isotopologue_lib, peak_properties, fragmentor, mzml_params
         )
     else:
         scans, scan_dict = [], {}
@@ -176,14 +175,17 @@ def rescale_ms1_scans(
 
 
 def generate_scans(
-    isotopologue_lib, peak_properties, fragmentation_function, mzml_params
+    isotopologue_lib: dict,
+    peak_properties: dict,
+    fragmentor: AbstractFragmentor,
+    mzml_params: dict,
 ):
     """Summary.
 
     Args:
         isotopologue_lib (TYPE): Description
         peak_properties (TYPE): Description
-        fragmentation_function (TYPE): Description
+        fragmentation_function (A): Description
         mzml_params (TYPE): Description
     """
     gradient_length = mzml_params["gradient_length"]
@@ -193,8 +195,8 @@ def generate_scans(
     ms1_scans = 0
     ms2_scans = 0
 
-    mol_scan_dict = {}
-    scans = []
+    mol_scan_dict: Dict[str, Dict[str, list]] = {}
+    scans: List[Tuple[Scan, List[Scan]]] = []
     i = 0
 
     if len(isotopologue_lib) == 0:
@@ -206,7 +208,7 @@ def generate_scans(
 
     molecules = list(isotopologue_lib.keys())
     while t < gradient_length:
-        scan_peaks = []
+        scan_peaks: List[Tuple[float, float]] = []
         for mol in isotopologue_lib:
             mol_plus = f"+{mol}"
             if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
@@ -235,11 +237,15 @@ def generate_scans(
         # TODO implement proper fragmentation for peptides and nucleosides
         for ms2 in range(10):
             mol_indexer = ms2 % len(isotopologue_lib)
-            frag_mz = fragmentation_function(molecules[mol_indexer])
+            mol_name = peak_properties[mol_plus]["trivial_name"]
+            peaks = fragmentor.fragment(mol_name)
+            print(peaks)
+            frag_mz = peaks[:, 0]
+            frag_i = peaks[:, 1]
             ms2_scan = Scan(
                 {
                     "mz": frag_mz,
-                    "i": np.array([100 for _ in range(len(frag_mz))]),
+                    "i": frag_i,
                     "rt": t,
                     "id": i,
                     "precursor_mz": 100,
@@ -256,14 +262,18 @@ def generate_scans(
     return scans, mol_scan_dict
 
 
-def generate_molecule_isotopologue_lib(molecules):
+def generate_molecule_isotopologue_lib(molecules: List[str], charges: List[int] = None):
     """Summary.
 
     Args:
         molecules (TYPE): Description
     """
+    if charges is None:
+        charges = [1]
     if len(molecules) > 0:
-        lib = pyqms.IsotopologueLibrary(molecules=molecules, charges=[1],)
+        lib = pyqms.IsotopologueLibrary(
+            molecules=molecules, charges=charges, verbose=False
+        )
         reduced_lib = {}
         for mol in lib:
             data = lib[mol]["env"][(("N", "0.000"),)]

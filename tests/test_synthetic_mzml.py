@@ -5,6 +5,7 @@ import pytest
 
 import pymzml
 from scipy.stats import kstest, normaltest
+from smiter.fragmentation_functions import AbstractFragmentor, NucleosideFragmentor
 from smiter.synthetic_mzml import write_mzml
 
 
@@ -20,6 +21,17 @@ def simple_fragmentation_function(mol):
     return [200]
 
 
+class TestFragmentor(AbstractFragmentor):
+    def __init__(self):
+        print("Fragmentor goes chop chop chop chop chop ...")
+
+    def fragment(self, mol):
+        return np.array([(200, 1e5)])
+
+
+fragmentor = TestFragmentor()
+
+
 def test_write_mzml():
     """Write a mzML without spectra readable by pymzML."""
     file = NamedTemporaryFile("wb")
@@ -28,9 +40,7 @@ def test_write_mzml():
     mzml_params = {
         "gradient_length": 0,
     }
-    mzml_path = write_mzml(
-        file, molecules, simple_fragmentation_function, peak_props, mzml_params
-    )
+    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 0
 
@@ -40,6 +50,7 @@ def test_write_inosine_flat_mzml():
     molecules = ["+C(10)H(12)N(4)O(5)"]
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
+            "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -49,9 +60,7 @@ def test_write_inosine_flat_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(
-        file, molecules, simple_fragmentation_function, peak_props, mzml_params
-    )
+    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
 
@@ -61,6 +70,7 @@ def test_write_inosine_gauss_mzml():
     molecules = ["+C(10)H(12)N(4)O(5)"]
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
+            "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -71,9 +81,7 @@ def test_write_inosine_gauss_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(
-        file, molecules, simple_fragmentation_function, peak_props, mzml_params
-    )
+    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
     intensities = []
@@ -90,6 +98,7 @@ def test_write_inosine_gamma_mzml():
     molecules = ["+C(10)H(12)N(4)O(5)"]
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
+            "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -100,9 +109,7 @@ def test_write_inosine_gamma_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(
-        file, molecules, simple_fragmentation_function, peak_props, mzml_params
-    )
+    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
     intensities = []
@@ -121,12 +128,14 @@ def test_write_inosine_adenosine_gauss_mzml():
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
             "charge": 2,
+            "trivial_name": "inosine",
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
             "peak_params": {"sigma": 3},  # 10% of peak width,
         },
         "+C(10)H(13)N(5)O(4)": {
+            "trivial_name": "adenosine",
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -137,9 +146,7 @@ def test_write_inosine_adenosine_gauss_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(
-        file, molecules, simple_fragmentation_function, peak_props, mzml_params
-    )
+    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
 
@@ -173,12 +180,14 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
             "charge": 2,
+            "trivial_name": "inosine",
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
             "peak_params": {"sigma": 3},  # 10% of peak width,
         },
         "+C(10)H(13)N(5)O(4)": {
+            "trivial_name": "adenosine",
             "charge": 2,
             "scan_start_time": 15,
             "peak_width": 30,  # seconds
@@ -189,9 +198,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     mzml_params = {
         "gradient_length": 45,
     }
-    mzml_path = write_mzml(
-        file, molecules, simple_fragmentation_function, peak_props, mzml_params
-    )
+    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1507
 
@@ -213,12 +220,6 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
             if len(ino_i) > 0:
                 ino_intensities.append(ino_i[0])
                 ino_rt.append(spec.scan_time[0])
-    import matplotlib.pyplot as plt
-
-    plt.plot(ino_rt, ino_intensities, label="Inosine")
-    plt.savefig("/tmp/ino_same_gauss.png")
-    plt.plot(adeno_rt, adeno_intensities, label="Adenosine")
-    plt.savefig("/tmp/adeno_ino_same_gauss.png")
     _, p = normaltest(ino_intensities)
     assert p < 5e-4
     _, p = normaltest(adeno_intensities)
@@ -230,3 +231,56 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     mean_i_rt = ino_rt[m_i]
     mean_a_rt = adeno_rt[m_a]
     assert 14 < (mean_a_rt - mean_i_rt) < 16
+
+
+def test_write_inosine_proper_fragments_mzml():
+    file = NamedTemporaryFile("wb")
+    molecules = ["+C(10)H(12)N(4)O(5)"]
+    peak_props = {
+        "+C(10)H(12)N(4)O(5)": {
+            "charge": 2,
+            "trivial_name": "inosine",
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 3},  # 10% of peak width,
+        },
+    }
+    mzml_params = {
+        "gradient_length": 30,
+    }
+
+    nucl_fragmentor = NucleosideFragmentor()
+
+    mzml_path = write_mzml(file, molecules, nucl_fragmentor, peak_props, mzml_params)
+    reader = pymzml.run.Reader(mzml_path)
+    assert reader.get_spectrum_count() == 1001
+
+    ino_rt = []
+    ino_intensities = []
+    ino_fragments = []
+
+    ino_mono = 269.0880
+
+    for spec in reader:
+        if spec.ms_level == 1:
+            ino_i = spec.i[abs(spec.mz - ino_mono) < 0.001]
+            if len(ino_i) > 0:
+                ino_intensities.append(ino_i[0])
+                ino_rt.append(spec.scan_time[0])
+        if spec.ms_level == 2:
+            # check if inosine precursor
+            # if true, add fragments to ino_fragments
+            ino_fragments.append(spec.mz)
+            pass
+
+    _, p = normaltest(ino_intensities)
+    assert p < 5e-4
+
+    expected_frags = np.array([137.0457872316])
+    # Check ino fragments are correct
+    for frag_list in ino_fragments:
+        assert len(frag_list) == len(expected_frags)
+        # breakpoint()
+        sorted_frags = np.sort(frag_list)
+        assert abs(sorted_frags - expected_frags) < 0.001
