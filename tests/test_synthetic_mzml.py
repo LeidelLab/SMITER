@@ -1,5 +1,6 @@
 from tempfile import NamedTemporaryFile
 
+import numpy as np
 import pytest
 
 import pymzml
@@ -24,8 +25,12 @@ def test_write_mzml():
     file = NamedTemporaryFile("wb")
     molecules = []
     peak_props = {}
-
-    mzml_path = write_mzml(file, molecules, simple_fragmentation_function, peak_props)
+    mzml_params = {
+        "gradient_length": 0,
+    }
+    mzml_path = write_mzml(
+        file, molecules, simple_fragmentation_function, peak_props, mzml_params
+    )
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 0
 
@@ -41,7 +46,12 @@ def test_write_inosine_flat_mzml():
             "peak_function": None,
         }
     }
-    mzml_path = write_mzml(file, molecules, simple_fragmentation_function, peak_props)
+    mzml_params = {
+        "gradient_length": 30,
+    }
+    mzml_path = write_mzml(
+        file, molecules, simple_fragmentation_function, peak_props, mzml_params
+    )
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
 
@@ -55,18 +65,23 @@ def test_write_inosine_gauss_mzml():
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
-            "peak_params": {"sigma": 0.1},  # 10% of peak width
+            "peak_params": {"sigma": 3},  # 10% of peak width
         }
     }
-    mzml_path = write_mzml(file, molecules, simple_fragmentation_function, peak_props)
+    mzml_params = {
+        "gradient_length": 30,
+    }
+    mzml_path = write_mzml(
+        file, molecules, simple_fragmentation_function, peak_props, mzml_params
+    )
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
             intensities.append(spec.i[0])
-    # assert peaks are gauss distributed
     _, p = normaltest(intensities)
+    print(intensities)
     assert p < 5e-4
 
 
@@ -82,13 +97,136 @@ def test_write_inosine_gamma_mzml():
             "peak_params": {"a": 3, "scale": 20},  # 10% of peak width,
         }
     }
-    mzml_path = write_mzml(file, molecules, simple_fragmentation_function, peak_props)
+    mzml_params = {
+        "gradient_length": 30,
+    }
+    mzml_path = write_mzml(
+        file, molecules, simple_fragmentation_function, peak_props, mzml_params
+    )
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1001
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
             intensities.append(spec.i[0])
-    # assert peaks are gauss distributed
     t = kstest(intensities, "gamma", args=(3, 0, 20))
-    assert t.pvalue < 5e-4
+    print(intensities)
+    assert t.pvalue < 1e-148
+
+
+def test_write_inosine_adenosine_gauss_mzml():
+    file = NamedTemporaryFile("wb")
+    molecules = ["+C(10)H(12)N(4)O(5)", "+C(10)O(4)N(5)H(13)"]
+    # molecules = ["+C(10)O(4)N(5)H(13)"]
+    peak_props = {
+        "+C(10)H(12)N(4)O(5)": {
+            "charge": 2,
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 3},  # 10% of peak width,
+        },
+        "+C(10)H(13)N(5)O(4)": {
+            "charge": 2,
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 3},  # 10% of peak width,
+        },
+    }
+    mzml_params = {
+        "gradient_length": 30,
+    }
+    mzml_path = write_mzml(
+        file, molecules, simple_fragmentation_function, peak_props, mzml_params
+    )
+    reader = pymzml.run.Reader(mzml_path)
+    assert reader.get_spectrum_count() == 1001
+
+    ino_rt = []
+    ino_intensities = []
+    adeno_rt = []
+    adeno_intensities = []
+
+    ino_mono = 269.0880
+    adeno_mono = 268.1040
+
+    for spec in reader:
+        if spec.ms_level == 1:
+            ino_i = spec.i[abs(spec.mz - ino_mono) < 0.001]
+            adeno_i = spec.i[abs(spec.mz - adeno_mono) < 0.001]
+            if len(adeno_i) > 0:
+                adeno_intensities.append(adeno_i[0])
+                adeno_rt.append(spec.scan_time[0])
+            if len(ino_i) > 0:
+                ino_intensities.append(ino_i[0])
+                ino_rt.append(spec.scan_time[0])
+    _, p = normaltest(ino_intensities)
+    assert p < 5e-4
+    _, p = normaltest(adeno_intensities)
+    assert p < 5e-4
+
+
+def test_write_inosine_adenosine_gauss_shift_mzml():
+    file = NamedTemporaryFile("wb")
+    molecules = ["+C(10)H(12)N(4)O(5)", "+C(10)O(4)N(5)H(13)"]
+    peak_props = {
+        "+C(10)H(12)N(4)O(5)": {
+            "charge": 2,
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 3},  # 10% of peak width,
+        },
+        "+C(10)H(13)N(5)O(4)": {
+            "charge": 2,
+            "scan_start_time": 15,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 3},  # 10% of peak width,
+        },
+    }
+    mzml_params = {
+        "gradient_length": 45,
+    }
+    mzml_path = write_mzml(
+        file, molecules, simple_fragmentation_function, peak_props, mzml_params
+    )
+    reader = pymzml.run.Reader(mzml_path)
+    assert reader.get_spectrum_count() == 1507
+
+    ino_rt = []
+    ino_intensities = []
+    adeno_rt = []
+    adeno_intensities = []
+
+    ino_mono = 269.0880
+    adeno_mono = 268.1040
+
+    for spec in reader:
+        if spec.ms_level == 1:
+            ino_i = spec.i[abs(spec.mz - ino_mono) < 0.001]
+            adeno_i = spec.i[abs(spec.mz - adeno_mono) < 0.001]
+            if len(adeno_i) > 0:
+                adeno_intensities.append(adeno_i[0])
+                adeno_rt.append(spec.scan_time[0])
+            if len(ino_i) > 0:
+                ino_intensities.append(ino_i[0])
+                ino_rt.append(spec.scan_time[0])
+    import matplotlib.pyplot as plt
+
+    plt.plot(ino_rt, ino_intensities, label="Inosine")
+    plt.savefig("/tmp/ino_same_gauss.png")
+    plt.plot(adeno_rt, adeno_intensities, label="Adenosine")
+    plt.savefig("/tmp/adeno_ino_same_gauss.png")
+    _, p = normaltest(ino_intensities)
+    assert p < 5e-4
+    _, p = normaltest(adeno_intensities)
+    assert p < 5e-4
+
+    # assert rt max diff is about 15
+    m_i = np.argmax(ino_intensities)
+    m_a = np.argmax(adeno_intensities)
+    mean_i_rt = ino_rt[m_i]
+    mean_a_rt = adeno_rt[m_a]
+    assert 14 < (mean_a_rt - mean_i_rt) < 16

@@ -1,0 +1,476 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"scale_",
+				"scale_factor"
+			],
+			[
+				"scl",
+				"scale_factor"
+			],
+			[
+				"aden",
+				"adeno_intensities〔variable〕"
+			],
+			[
+				"ino_",
+				"ino_rt〔variable〕"
+			],
+			[
+				"adeno_",
+				"adeno_intensities〔variable〕"
+			],
+			[
+				"peak_",
+				"peak_params"
+			],
+			[
+				"peak",
+				"peak_properties"
+			],
+			[
+				"sc",
+				"scale_params"
+			],
+			[
+				"scale",
+				"scale_func\tparam"
+			],
+			[
+				"ms",
+				"ms1_scans"
+			],
+			[
+				"mol",
+				"molecules〔argument〕"
+			],
+			[
+				"ms2",
+				"ms2_scans"
+			],
+			[
+				"Name",
+				"NamedTemporaryFile〔module〕"
+			],
+			[
+				"curr",
+				"current_rt"
+			],
+			[
+				"num",
+				"number_of_ms2_scans\tstatement"
+			],
+			[
+				"fragm",
+				"fragmentation_function"
+			],
+			[
+				"T",
+				"TextIOWrapper\tclass"
+			],
+			[
+				"synt",
+				"synthetic_mzml_object〔argument〕"
+			],
+			[
+				"Tem",
+				"TemporaryFile\tstatement"
+			],
+			[
+				"syn",
+				"synthetic_mzml_object"
+			],
+			[
+				"w",
+				"write_mztab_summary\tfunction"
+			],
+			[
+				"py",
+				"pyrnams.core〔module〕"
+			],
+			[
+				"ms_",
+				"ms_offset"
+			],
+			[
+				"frag_mass_",
+				"frag_mass_tolerance"
+			],
+			[
+				"valida",
+				"validation_score_field"
+			],
+			[
+				"msfr",
+				"msfragger_output_tsv\tstatement"
+			],
+			[
+				"knap",
+				"knapsack_file〔variable〕"
+			],
+			[
+				"param",
+				"param_value〔variable〕"
+			],
+			[
+				"deep",
+				"deepnovo_param〔variable〕"
+			],
+			[
+				"identi",
+				"identifed_scans\tstatement"
+			],
+			[
+				"fil",
+				"filtered_idents\tparam"
+			],
+			[
+				"if",
+				"ifmain\tif __name__ == '__main__'"
+			],
+			[
+				"substitut",
+				"substitutions"
+			],
+			[
+				"exact",
+				"exact_PTM_spec_list"
+			],
+			[
+				"ex",
+				"exact_PTM_spec〔variable〕"
+			],
+			[
+				"am",
+				"amino_acids〔variable〕"
+			],
+			[
+				"quan",
+				"quantify_main〔module〕"
+			],
+			[
+				"W_",
+				"W_aa_ambiguous\tstatement"
+			],
+			[
+				"W_aa",
+				"W_aa_ambiguous"
+			],
+			[
+				"find_",
+				"find_positions_local\tfunction"
+			],
+			[
+				"is_",
+				"is_mispairing〔function〕"
+			],
+			[
+				"break",
+				"breakpoint\tfunction"
+			],
+			[
+				"name",
+				"names_list"
+			],
+			[
+				"is_prot_",
+				"is_prot_nterm"
+			],
+			[
+				"sa",
+				"sa〔variable〕"
+			],
+			[
+				"cre",
+				"create_logger〔function〕"
+			],
+			[
+				"parse",
+				"parse_params〔function〕"
+			],
+			[
+				"trans",
+				"translated_record_list〔variable〕"
+			],
+			[
+				"input",
+				"input_folder"
+			],
+			[
+				"out",
+				"output_data_folder〔variable〕"
+			],
+			[
+				"Att",
+				"AttributeError\tclass"
+			],
+			[
+				"mzml2",
+				"mzml2mgf"
+			],
+			[
+				"Run",
+				"RuntimeWarning\tclass"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"lat",
+				"LaTeXTools: Check system"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/media/external/Projects/proteomics_blog_hackathon"
+	],
+	"file_history":
+	[
+		"/media/external/Projects/proteomics_blog_hackathon/proteomics_hackathon/scripts/01_wide_search.py",
+		"/media/external/Projects/proteomics_blog_hackathon/proteomics_hackathon/scripts/01_offset_sweep.py",
+		"/media/external/Projects/proteomics_blog_hackathon/scripts/01_1_wide_search.py",
+		"/media/external/Projects/proteomics_blog_hackathon/scripts/01_offset_sweep.py",
+		"/media/external/Projects/proteomics_blog_hackathon/scripts/Offset_distribution_TN_CSF_062617_02.png",
+		"/home/manuel/Gits/Science/SMITER/requirements.txt",
+		"/home/manuel/Gits/Science/SMITER/smiter/todos.md",
+		"/home/manuel/Gits/Science/SMITER/smiter/synthetic_mzml.py.bck",
+		"/home/manuel/Gits/Science/SMITER/tests/test_smiter_cli.py",
+		"/home/manuel/Gits/Science/SMITER/requirements_dev.txt",
+		"/home/manuel/Gits/Science/SMITER/pyproject.toml",
+		"/home/manuel/Gits/Science/SMITER/tox.ini",
+		"/home/manuel/Gits/Science/SMITER/smiter/cli.py",
+		"/home/manuel/Gits/Science/SMITER/smiter/__init__.py",
+		"/home/manuel/Gits/Science/SMITER/tests/test_smiter.py",
+		"/home/manuel/Gits/Science/SMITER/smiter/mzml_writer.py",
+		"/home/manuel/Gits/Science/SMITER/smiter/smiter.py",
+		"/home/manuel/Gits/Science/SMITER/fix_style.sh",
+		"/home/manuel/.config/joplin-desktop/edit-932c3421aa3e41ac9a7c22873143b8a5.md",
+		"/home/manuel/Gits/Science/pyRNAms/pyrnams/kb.py",
+		"/home/manuel/Gits/Science/pyRNAms/example_data/modomics_20171213_short.csv",
+		"/home/manuel/Gits/Science/pyRNAms/example_data/modomics_20171213.csv",
+		"/home/manuel/Gits/Science/pyRNAms/example_data/updated_ribonucleoside_evidences_short.csv",
+		"/home/manuel/Gits/Science/pyRNAms/dash_app/pyRNAms_GUI_v3.py",
+		"/home/manuel/Gits/Science/pyRNAms/pyrnams/cli_tools/run_pyrnams.py",
+		"/home/manuel/Gits/Science/pyRNAms/pyrnams/pyRNAms.py",
+		"/home/manuel/Gits/Science/pyRNAms/tests/test_unit_core.py",
+		"/home/manuel/Gits/Science/pyRNAms/tests/test_integration_pipeline.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/resources/platform_independent/arc_independent/filter_csv_1_0_0/filter_csv_1_0_0.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/unode.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/resources/platform_independent/arc_independent/merge_csvs_1_0_0/merge_csvs_1_0_0.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/ucore.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/wrappers/msfragger_20171106.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/ucontroller.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/wrappers/percolator_3_2_1.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/resources/platform_independent/arc_independent/unify_csv_1_0_0/unify_csv_1_0_0.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/wrappers/novor_1_1beta.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/wrappers/novor_1_05.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/uparams.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/wrappers/msfragger_20170103.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/scripts/03_open_search.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/ursgal/ursgal/wrappers/deepnovo_0_0_1.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/scripts/test.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/substitutions/plot.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/params_example.txt",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/substitutions/detect.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/substitutions/quantify.py",
+		"/home/manuel/Gits/Science/ursgal/ursgal/uparams.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/substitutions/params.py",
+		"/home/manuel/.config/sublime-text-3/Packages/Jedi - Python autocompletion/Default.sublime-keymap",
+		"/home/manuel/.config/sublime-text-3/Packages/User/Default.sublime-keymap",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/subs_params_all.py",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/substitutions/params_example.txt",
+		"/home/manuel/Projects/Aminoacid_Substitution/gits/substitutions/requirements.txt",
+		"/home/manuel/Gits/Science/ursgal/ursgal/ucontroller.py",
+		"/home/manuel/Gits/Science/ursgal/ursgal/resources/platform_independent/arc_independent/mzml2mgf_1_0_0/mzml2mgf_1_0_0.py",
+		"/home/manuel/Gits/Science/ursgal/ursgal/resources/platform_independent/arc_independent/mzml2mgf_2_0_0/mzml2mgf_2_0_0.py",
+		"/home/manuel/Gits/Science/ursgal/requirements.txt",
+		"/home/manuel/Gits/Science/ursgal/ursgal/wrappers/pyqms_1_0_0.py",
+		"/home/manuel/Gits/Science/ursgal/ursgal/resources/platform_independent/arc_independent/pyqms_1_0_0/pyqms_1_0_0.py"
+	],
+	"find":
+	{
+		"height": 49.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 41.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.SublimeLinter":
+	{
+		"height": 0.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.latextools":
+	{
+		"height": 121.0
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "proteomics-hackathon.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Projects/pyRNAms.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 467.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

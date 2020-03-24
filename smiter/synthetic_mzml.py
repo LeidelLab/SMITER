@@ -77,6 +77,11 @@ class Scan(dict):
 
     @property
     def ms_level(self):
+        """Summary.
+
+        Returns:
+            TYPE: Description
+        """
         v = self.get("ms_level", None)
         return v
 
@@ -86,6 +91,7 @@ def write_mzml(
     molecules: List[str],
     fragmentation_function: Callable[[str], List[Tuple[float, float]]],
     peak_properties: Dict[str, dict] = None,
+    mzml_params: Dict[str, Union[int, float, str]] = None,
 ) -> str:
     """Write mzML file with chromatographic peaks and fragment spectra for the given molecules.
 
@@ -95,24 +101,34 @@ def write_mzml(
         fragmentation_function (Callable[[str], List[Tuple[float, float]]], optional): Description
         peak_properties (Dict[str, dict], optional): Description
     """
+    if mzml_params is None:
+        ## For debugging
+        mzml_params = {"gradient_length": 30}
     filename = file if isinstance(file, str) else file.name
     scans = []
     isotopologue_lib = generate_molecule_isotopologue_lib(molecules)
     if len(isotopologue_lib) > 0:
         scans, scan_dict = generate_scans(
-            isotopologue_lib, peak_properties, fragmentation_function
+            isotopologue_lib, peak_properties, fragmentation_function, mzml_params
         )
     else:
         scans, scan_dict = [], {}
     # TODO also rescale ms2 scans?
     # TODO ms2 scan intensitity as fraction of precursor intensity?
-    scans = rescale_ms1_scans(scans, scan_dict, peak_properties=peak_properties)
+    scans = rescale_ms1_scans(
+        scans,
+        scan_dict,
+        peak_properties=peak_properties,
+        isotopologue_lib=isotopologue_lib,
+    )
     write_scans(file, scans)
     return filename
 
 
-def rescale_ms1_scans(scans: list, scan_dict: dict, peak_properties=None):
-    """Summary
+def rescale_ms1_scans(
+    scans: list, scan_dict: dict, peak_properties=None, isotopologue_lib=None
+):
+    """Summary.
 
     Args:
         scans (list): Description
@@ -120,17 +136,30 @@ def rescale_ms1_scans(scans: list, scan_dict: dict, peak_properties=None):
     """
     if peak_properties is None:
         peak_properties = {}
+
+    # TODO: fix for overlapping ms1 peak scaling
     for molecule in scan_dict:
         scan_num = len(scan_dict[molecule]["ms1_scans"])
+        scan_max = max(scan_dict[molecule]["ms1_scans"])
         scale_func = peak_properties[f"+{molecule}"]["peak_function"]
-        for i, scan_list in enumerate(scans):
+        i = 0
+        rt_max = (
+            peak_properties[f"+{molecule}"]["scan_start_time"]
+            + peak_properties[f"+{molecule}"]["peak_width"]
+        )
+        mu = (
+            peak_properties[f"+{molecule}"]["scan_start_time"]
+            + 0.5 * peak_properties[f"+{molecule}"]["peak_width"]
+        )
+        for _, scan_list in enumerate(scans):
+            i += 1
             s = scan_list[0]
             if scale_func == "gauss":
                 scale_factor = distributions[scale_func](
-                    i,
-                    mu=scan_num / 2,
-                    sigma=scan_num
-                    * peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
+                    # i,
+                    s.retention_time,
+                    mu=mu,
+                    sigma=peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
                 )
             elif scale_func == "gamma":
                 scale_factor = distributions[scale_func](
@@ -140,13 +169,25 @@ def rescale_ms1_scans(scans: list, scan_dict: dict, peak_properties=None):
                 )
             elif scale_func is None:
                 scale_factor = 1
-            s.i *= scale_factor * 1e6  # TODO make this magic number a parameter
+            for mz in isotopologue_lib[molecule]["mz"]:
+                filter = abs(s.mz - mz) < 0.002
+                s.i[filter] = s.i[filter] * scale_factor
     return scans
 
 
-def generate_scans(isotopologue_lib, peak_properties, fragmentation_function):
-    gradient_length = 30
-    ms_rt_diff = 0.03
+def generate_scans(
+    isotopologue_lib, peak_properties, fragmentation_function, mzml_params
+):
+    """Summary.
+
+    Args:
+        isotopologue_lib (TYPE): Description
+        peak_properties (TYPE): Description
+        fragmentation_function (TYPE): Description
+        mzml_params (TYPE): Description
+    """
+    gradient_length = mzml_params["gradient_length"]
+    ms_rt_diff = mzml_params.get("ms_rt_diff", 0.03)
 
     t = 0
     ms1_scans = 0
@@ -163,7 +204,9 @@ def generate_scans(isotopologue_lib, peak_properties, fragmentation_function):
         mol: {"ms1_scans": [], "ms2_scans": []} for mol in isotopologue_lib
     }
 
+    molecules = list(isotopologue_lib.keys())
     while t < gradient_length:
+        scan_peaks = []
         for mol in isotopologue_lib:
             mol_plus = f"+{mol}"
             if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
@@ -173,44 +216,43 @@ def generate_scans(isotopologue_lib, peak_properties, fragmentation_function):
                 )
                 >= t
             ):
+                scan_peaks.extend(
+                    zip(
+                        isotopologue_lib[mol]["mz"],
+                        np.array(isotopologue_lib[mol]["i"]),
+                    )
+                )
                 mol_scan_dict[mol]["ms1_scans"].append(i)
-                s = Scan(
-                    {
-                        "mz": isotopologue_lib[mol]["mz"],
-                        "rt": t,
-                        "i": np.array(isotopologue_lib[mol]["i"]),
-                        "id": i,
-                    }
-                )
-                prec_scan_id = i
-                i += 1
-                scans.append((s, []))
-            else:
-                scans.append((Scan({"mz": [], "rt": t, "i": [], "id": i}), []))
-                prec_scan_id = i
-                i += 1
+        scan_peaks = sorted(scan_peaks, key=lambda x: x[0])
+        mz, inten = zip(*scan_peaks)
+        s = Scan({"mz": np.array(mz), "i": np.array(inten), "id": i, "rt": t,})
+        prec_scan_id = i
+        i += 1
+        scans.append((s, []))
+        t += ms_rt_diff
 
+        # TODO generate ms2 scans only in elution range
+        # TODO implement proper fragmentation for peptides and nucleosides
+        for ms2 in range(10):
+            mol_indexer = ms2 % len(isotopologue_lib)
+            frag_mz = fragmentation_function(molecules[mol_indexer])
+            ms2_scan = Scan(
+                {
+                    "mz": frag_mz,
+                    "i": np.array([100 for _ in range(len(frag_mz))]),
+                    "rt": t,
+                    "id": i,
+                    "precursor_mz": 100,
+                    "precursor_i": 100,
+                    "precursor_charge": 1,
+                    "precursor_scan_id": prec_scan_id,
+                }
+            )
+            mol_scan_dict[mol]["ms2_scans"].append(i)
+
+            scans[-1][1].append(ms2_scan)
             t += ms_rt_diff
-
-            for ms2 in range(10):
-                frag_mz = fragmentation_function(mol)
-                ms2_scan = Scan(
-                    {
-                        "mz": frag_mz,
-                        "i": np.array([100 for _ in range(len(frag_mz))]),
-                        "rt": t,
-                        "id": i,
-                        "precursor_mz": 100,
-                        "precursor_i": 100,
-                        "precursor_charge": 1,
-                        "precursor_scan_id": prec_scan_id,
-                    }
-                )
-                mol_scan_dict[mol]["ms2_scans"].append(i)
-
-                scans[-1][1].append(ms2_scan)
-                t += ms_rt_diff
-                i += 1
+            i += 1
     return scans, mol_scan_dict
 
 
@@ -259,6 +301,7 @@ def write_scans(
                         params=[
                             "MS1 Spectrum",
                             {"ms level": 1},
+                            {"scan start time": scan.retention_time},
                             {"total ion current": sum(scan.i)},
                         ],
                     )
@@ -272,6 +315,10 @@ def write_scans(
                             params=[
                                 "MSn Spectrum",
                                 {"ms level": 2},
+                                {
+                                    "scan start time": scan.retention_time,
+                                    "unitName": "seconds",
+                                },
                                 {"total ion current": sum(prod.i)},
                             ],
                             # TOFIX adding precursor information makes psims crash
