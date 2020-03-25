@@ -13,7 +13,7 @@ def main(file_path):
     molecules = ["+C(10)H(12)N(4)O(5)", "+C(10)O(4)N(5)H(13)"]
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
-            "charge": 2,
+            "charge": 1,
             "trivial_name": "inosine",
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -22,7 +22,7 @@ def main(file_path):
         },
         "+C(10)H(13)N(5)O(4)": {
             "trivial_name": "adenosine",
-            "charge": 2,
+            "charge": 1,
             "scan_start_time": 15,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
