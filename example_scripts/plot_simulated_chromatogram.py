@@ -12,7 +12,7 @@ def main():
     molecules = ["+C(10)H(12)N(4)O(5)"]
     peak_props = {
         "+C(10)H(12)N(4)O(5)": {
-            "trivial_name": 'inosine',
+            "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -33,7 +33,7 @@ def main():
     for pos, spec in enumerate(reader):
         if spec.ms_level == 1:
             scan_time, scan_unit = spec.scan_time
-            if scan_unit == 'second':
+            if scan_unit == "second":
                 scan_time /= 60
             tic_tuples.append((scan_time, spec.TIC))
 
@@ -42,7 +42,10 @@ def main():
     pf.add(tic_tuples, color=(0, 0, 0), style="lines", title="TIC")
     pf.save(
         "example_chromatogram.html",
-        layout={"xaxis": {"title": "Retention time [minutes]"}, "yaxis": {"title": "TIC"}},
+        layout={
+            "xaxis": {"title": "Retention time [minutes]"},
+            "yaxis": {"title": "TIC"},
+        },
     )
 
 

@@ -3,10 +3,10 @@ import io
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
-
 import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
+
 from smiter.fragmentation_functions import AbstractFragmentor
 from smiter.lib import calc_mz
 from smiter.peak_distribution import distributions
@@ -303,6 +303,9 @@ def write_scans(
             with writer.spectrum_list(count=spectrum_count):
                 for scan, products in scans:
                     # Write Precursor scan
+                    index_of_max_i = np.argmax(scan.i)
+                    max_i = scan.i[index_of_max_i]
+                    mz_at_max_i = scan.mz[index_of_max_i]
                     writer.write_spectrum(
                         scan.mz,
                         scan.i,
@@ -312,6 +315,8 @@ def write_scans(
                             {"ms level": 1},
                             {"scan start time": scan.retention_time},
                             {"total ion current": sum(scan.i)},
+                            {"base peak m/z": mz_at_max_i},
+                            {"base peak intensity": max_i},
                         ],
                     )
                     # Write MSn scans
