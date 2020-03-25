@@ -1,8 +1,7 @@
 """Summary."""
 import numpy as np
 
-from smiter.fragmentation_functions import (NucleosideFragmentor,
-                                            PeptideFragmentor)
+from smiter.fragmentation_functions import NucleosideFragmentor, PeptideFragmentor
 
 
 def test_fragment_peptide():
