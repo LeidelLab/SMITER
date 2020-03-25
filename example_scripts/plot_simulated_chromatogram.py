@@ -17,7 +17,7 @@ def main():
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
-            "peak_params": {"sigma": 0.1},
+            "peak_params": {"sigma": 3},
         }
     }
     mzml_params = {
@@ -32,15 +32,17 @@ def main():
     tic_tuples = []
     for pos, spec in enumerate(reader):
         if spec.ms_level == 1:
-            # print(spec.TIC)
-            tic_tuples.append((pos, spec.TIC))
+            scan_time, scan_unit = spec.scan_time
+            if scan_unit == 'second':
+                scan_time /= 60
+            tic_tuples.append((scan_time, spec.TIC))
 
     pf = Factory()
     pf.new_plot()
     pf.add(tic_tuples, color=(0, 0, 0), style="lines", title="TIC")
     pf.save(
         "example_chromatogram.html",
-        layout={"xaxis": {"title": "Retention time"}, "yaxis": {"title": "TIC"}},
+        layout={"xaxis": {"title": "Retention time [minutes]"}, "yaxis": {"title": "TIC"}},
     )
 
 
