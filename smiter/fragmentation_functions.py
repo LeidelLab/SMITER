@@ -61,7 +61,7 @@ class NucleosideFragmentor(AbstractFragmentor):
         if nucleotide_fragment_kb is None:
             nucleoside_fragment_kb = pyrnams_nucleoside_fragment_kb
 
-        nuc_to_fragments = {}
+        nuc_to_fragments: Dict[str, List[float]] = {}
         cc = pyqms.chemical_composition.ChemicalComposition()
         for nuc_name, nuc_dict in nucleoside_fragment_kb.items():
             nuc_to_fragments[nuc_name] = []
