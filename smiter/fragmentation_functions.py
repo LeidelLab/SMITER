@@ -7,11 +7,10 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
 
 import numpy as np
-
 import pyqms
-from smiter.ext.nucleoside_fragment_kb import (
-    KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
-)
+
+from smiter.ext.nucleoside_fragment_kb import \
+    KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb
 from smiter.lib import calc_mz
 
 try:

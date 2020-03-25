@@ -1,11 +1,12 @@
 from tempfile import NamedTemporaryFile
 
 import numpy as np
-import pytest
-
 import pymzml
+import pytest
 from scipy.stats import kstest, normaltest
-from smiter.fragmentation_functions import AbstractFragmentor, NucleosideFragmentor
+
+from smiter.fragmentation_functions import (AbstractFragmentor,
+                                            NucleosideFragmentor)
 from smiter.synthetic_mzml import write_mzml
 
 
