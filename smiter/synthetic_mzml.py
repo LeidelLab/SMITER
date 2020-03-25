@@ -239,7 +239,6 @@ def generate_scans(
             mol_indexer = ms2 % len(isotopologue_lib)
             mol_name = peak_properties[mol_plus]["trivial_name"]
             peaks = fragmentor.fragment(mol_name)
-            print(peaks)
             frag_mz = peaks[:, 0]
             frag_i = peaks[:, 1]
             ms2_scan = Scan(
