@@ -294,6 +294,7 @@ def write_scans(
     Returns:
         None: Description
     """
+    id_format_str = 'controllerType=0 controllerNumber=1 scan={i}'
     with MzMLWriter(file) as writer:
         # Add default controlled vocabularies
         writer.controlled_vocabularies()
@@ -306,10 +307,11 @@ def write_scans(
                     index_of_max_i = np.argmax(scan.i)
                     max_i = scan.i[index_of_max_i]
                     mz_at_max_i = scan.mz[index_of_max_i]
+                    # breakpoint()
                     writer.write_spectrum(
                         scan.mz,
                         scan.i,
-                        id=scan.id,
+                        id=id_format_str.format(i=scan.id),
                         params=[
                             "MS1 Spectrum",
                             {"ms level": 1},
@@ -325,7 +327,7 @@ def write_scans(
                         writer.write_spectrum(
                             prod.mz,
                             prod.i,
-                            id=prod.id,
+                            id=id_format_str.format(i=prod.id),
                             params=[
                                 "MSn Spectrum",
                                 {"ms level": 2},
