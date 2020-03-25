@@ -55,6 +55,7 @@ def test_write_inosine_flat_mzml():
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": None,
+            "peak_params": {},
         }
     }
     mzml_params = {
@@ -62,7 +63,7 @@ def test_write_inosine_flat_mzml():
     }
     mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1001
+    assert reader.get_spectrum_count() == 999
 
 
 def test_write_inosine_gauss_mzml():
@@ -83,7 +84,7 @@ def test_write_inosine_gauss_mzml():
     }
     mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1001
+    assert reader.get_spectrum_count() == 999
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
@@ -111,14 +112,15 @@ def test_write_inosine_gamma_mzml():
     }
     mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1001
+    assert reader.get_spectrum_count() == 999
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
             intensities.append(spec.i[0])
     t = kstest(intensities, "gamma", args=(3, 0, 20))
     print(intensities)
-    assert t.pvalue < 1e-148
+    ## what is a reasonable p-value cutoff here?
+    assert t.pvalue < 1e-100
 
 
 def test_write_inosine_adenosine_gauss_mzml():
@@ -148,7 +150,7 @@ def test_write_inosine_adenosine_gauss_mzml():
     }
     mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1001
+    assert reader.get_spectrum_count() == 999
 
     ino_rt = []
     ino_intensities = []
@@ -254,7 +256,7 @@ def test_write_inosine_proper_fragments_mzml():
 
     mzml_path = write_mzml(file, molecules, nucl_fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1001
+    assert reader.get_spectrum_count() == 999
 
     ino_rt = []
     ino_intensities = []
@@ -279,6 +281,8 @@ def test_write_inosine_proper_fragments_mzml():
 
     expected_frags = np.array([137.0457872316])
     # Check ino fragments are correct
+    from pprint import pprint
+    # pprint(ino_fragments)
     for frag_list in ino_fragments:
         assert len(frag_list) == len(expected_frags)
         # breakpoint()

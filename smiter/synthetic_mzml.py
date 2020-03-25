@@ -170,7 +170,7 @@ def rescale_ms1_scans(
                 scale_factor = 1
             for mz in isotopologue_lib[molecule]["mz"]:
                 filter = abs(s.mz - mz) < 0.002
-                s.i[filter] = s.i[filter] * scale_factor
+                s.i[filter] = s.i[filter] * scale_factor * peak_properties[f"+{molecule}"]["peak_params"].get('scaling_factor', 1e3)
     return scans
 
 
@@ -232,31 +232,60 @@ def generate_scans(
         i += 1
         scans.append((s, []))
         t += ms_rt_diff
+        if t > gradient_length:
+            break
 
         # TODO generate ms2 scans only in elution range
         # TODO implement proper fragmentation for peptides and nucleosides
         for ms2 in range(10):
-            mol_indexer = ms2 % len(isotopologue_lib)
-            mol_name = peak_properties[mol_plus]["trivial_name"]
-            peaks = fragmentor.fragment(mol_name)
-            frag_mz = peaks[:, 0]
-            frag_i = peaks[:, 1]
-            ms2_scan = Scan(
-                {
-                    "mz": frag_mz,
-                    "i": frag_i,
-                    "rt": t,
-                    "id": i,
-                    "precursor_mz": 100,
-                    "precursor_i": 100,
-                    "precursor_charge": 1,
-                    "precursor_scan_id": prec_scan_id,
-                }
-            )
-            mol_scan_dict[mol]["ms2_scans"].append(i)
+            if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
+                (
+                    peak_properties[mol_plus]["scan_start_time"]
+                    + peak_properties[mol_plus]["peak_width"]
+                )
+                >= t
+            ):
+                mol_indexer = ms2 % len(isotopologue_lib)
+                mol_name = peak_properties[mol_plus]["trivial_name"]
+                peaks = fragmentor.fragment(mol_name)
+                frag_mz = peaks[:, 0]
+                frag_i = peaks[:, 1]
+                ms2_scan = Scan(
+                    {
+                        "mz": frag_mz,
+                        "i": frag_i,
+                        "rt": t,
+                        "id": i,
+                        "precursor_mz": 100,
+                        "precursor_i": 100,
+                        "precursor_charge": 1,
+                        "precursor_scan_id": prec_scan_id,
+                    }
+                )
+                t += ms_rt_diff
+                if t > gradient_length:
+                    break
+            else:
+                # breakpoint()
+                # print(t)
+                ms2_scan = Scan(
+                    {
+                        "mz": [],
+                        "i": [],
+                        "rt": t,
+                        "id": i,
+                        "precursor_mz": None,
+                        "precursor_i": None,
+                        "precursor_charge": 1,
+                        "precursor_scan_id": prec_scan_id,
+                    }
+                )
+                t += ms_rt_diff
+                # if t > gradient_length:
+                #     break
 
+            mol_scan_dict[mol]["ms2_scans"].append(i)
             scans[-1][1].append(ms2_scan)
-            t += ms_rt_diff
             i += 1
     return scans, mol_scan_dict
 
