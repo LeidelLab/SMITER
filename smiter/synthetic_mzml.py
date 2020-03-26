@@ -105,6 +105,7 @@ def write_mzml(
     """
     filename = file if isinstance(file, str) else file.name
     scans = []
+    # pass list of all charge states in peak properties
     isotopologue_lib = generate_molecule_isotopologue_lib(molecules)
     if len(isotopologue_lib) > 0:
         scans, scan_dict = generate_scans(
@@ -114,64 +115,93 @@ def write_mzml(
         scans, scan_dict = [], {}
     # TODO also rescale ms2 scans?
     # TODO ms2 scan intensitity as fraction of precursor intensity?
-    scans = rescale_ms1_scans(
-        scans,
-        scan_dict,
-        peak_properties=peak_properties,
-        isotopologue_lib=isotopologue_lib,
-    )
+    # scans = rescale_ms1_scans(
+    #     scans,
+    #     scan_dict,
+    #     peak_properties=peak_properties,
+    #     isotopologue_lib=isotopologue_lib,
+    # )
     write_scans(file, scans)
     return filename
 
 
-def rescale_ms1_scans(
-    scans: list, scan_dict: dict, peak_properties=None, isotopologue_lib=None
-):
-    """Summary.
+# def rescale_ms1_scans(
+#     scans: list, scan_dict: dict, peak_properties=None, isotopologue_lib=None
+# ):
+#     """Summary.
 
-    Args:
-        scans (list): Description
-        scan_dict (dict): Description
-    """
-    if peak_properties is None:
-        peak_properties = {}
+#     Args:
+#         scans (list): Description
+#         scan_dict (dict): Description
+#     """
+#     if peak_properties is None:
+#         peak_properties = {}
 
-    # TODO: fix for overlapping ms1 peak scaling
-    for molecule in scan_dict:
-        scan_num = len(scan_dict[molecule]["ms1_scans"])
-        scan_max = max(scan_dict[molecule]["ms1_scans"])
-        scale_func = peak_properties[f"+{molecule}"]["peak_function"]
-        i = 0
-        rt_max = (
-            peak_properties[f"+{molecule}"]["scan_start_time"]
-            + peak_properties[f"+{molecule}"]["peak_width"]
+#     # TODO: fix for overlapping ms1 peak scaling
+#     for molecule in scan_dict:
+#         # scan_num = len(scan_dict[molecule]["ms1_scans"])
+#         # scan_max = max(scan_dict[molecule]["ms1_scans"])
+#         scale_func = peak_properties[f"+{molecule}"]["peak_function"]
+#         i = 0
+#         rt_max = (
+#             peak_properties[f"+{molecule}"]["scan_start_time"]
+#             + peak_properties[f"+{molecule}"]["peak_width"]
+#         )
+#         mu = (
+#             peak_properties[f"+{molecule}"]["scan_start_time"]
+#             + 0.5 * peak_properties[f"+{molecule}"]["peak_width"]
+#         )
+#         for _, scan_list in enumerate(scans):
+#             i += 1
+#             s = scan_list[0]
+#             if scale_func == "gauss":
+#                 scale_factor = distributions[scale_func](
+#                     # i,
+#                     s.retention_time,
+#                     mu=mu,
+#                     sigma=peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
+#                 )
+#             elif scale_func == "gamma":
+#                 scale_factor = distributions[scale_func](
+#                     i,
+#                     a=peak_properties[f"+{molecule}"]["peak_params"]["a"],
+#                     scale=peak_properties[f"+{molecule}"]["peak_params"]["scale"],
+#                 )
+#             elif scale_func is None:
+#                 scale_factor = 1
+#             for mz in isotopologue_lib[molecule]["mz"]:
+#                 filter = abs(s.mz - mz) < 0.002
+#                 s.i[filter] = s.i[filter] * scale_factor * peak_properties[f"+{molecule}"]["peak_params"].get('scaling_factor', 1e3)
+#     return scans
+
+
+def rescale_intensity(i, rt, molecule, peak_properties, isotopologue_lib):
+    scale_func = peak_properties[f"+{molecule}"]['peak_function']
+    rt_max = (
+        peak_properties[f"+{molecule}"]["scan_start_time"]
+        + peak_properties[f"+{molecule}"]["peak_width"]
+    )
+    mu = (
+        peak_properties[f"+{molecule}"]["scan_start_time"]
+        + 0.5 * peak_properties[f"+{molecule}"]["peak_width"]
+    )
+    if scale_func == "gauss":
+        dist_scale_factor = distributions[scale_func](
+            # i,
+            rt,
+            mu=mu,
+            sigma=peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
         )
-        mu = (
-            peak_properties[f"+{molecule}"]["scan_start_time"]
-            + 0.5 * peak_properties[f"+{molecule}"]["peak_width"]
+    elif scale_func == "gamma":
+        dist_scale_factor = distributions[scale_func](
+            rt,
+            a=peak_properties[f"+{molecule}"]["peak_params"]["a"],
+            scale=peak_properties[f"+{molecule}"]["peak_params"]["scale"],
         )
-        for _, scan_list in enumerate(scans):
-            i += 1
-            s = scan_list[0]
-            if scale_func == "gauss":
-                scale_factor = distributions[scale_func](
-                    # i,
-                    s.retention_time,
-                    mu=mu,
-                    sigma=peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
-                )
-            elif scale_func == "gamma":
-                scale_factor = distributions[scale_func](
-                    i,
-                    a=peak_properties[f"+{molecule}"]["peak_params"]["a"],
-                    scale=peak_properties[f"+{molecule}"]["peak_params"]["scale"],
-                )
-            elif scale_func is None:
-                scale_factor = 1
-            for mz in isotopologue_lib[molecule]["mz"]:
-                filter = abs(s.mz - mz) < 0.002
-                s.i[filter] = s.i[filter] * scale_factor
-    return scans
+    elif scale_func is None:
+        dist_scale_factor = 1
+    i *= dist_scale_factor * peak_properties[f"+{molecule}"].get('peak_scaling_factor', 1e3)
+    return i
 
 
 def generate_scans(
@@ -218,10 +248,15 @@ def generate_scans(
                 )
                 >= t
             ):
+                mz = isotopologue_lib[mol]["mz"]
+                intensity = np.array(isotopologue_lib[mol]["i"])
+                # breakpoint()
+                intesity = rescale_intensity(intensity, t, mol, peak_properties, isotopologue_lib)
+                # breakpoint()
                 scan_peaks.extend(
                     zip(
-                        isotopologue_lib[mol]["mz"],
-                        np.array(isotopologue_lib[mol]["i"]),
+                        mz,
+                        intensity,
                     )
                 )
                 mol_scan_dict[mol]["ms1_scans"].append(i)
@@ -232,31 +267,60 @@ def generate_scans(
         i += 1
         scans.append((s, []))
         t += ms_rt_diff
+        if t > gradient_length:
+            break
 
         # TODO generate ms2 scans only in elution range
         # TODO implement proper fragmentation for peptides and nucleosides
         for ms2 in range(10):
-            mol_indexer = ms2 % len(isotopologue_lib)
-            mol_name = peak_properties[mol_plus]["trivial_name"]
-            peaks = fragmentor.fragment(mol_name)
-            frag_mz = peaks[:, 0]
-            frag_i = peaks[:, 1]
-            ms2_scan = Scan(
-                {
-                    "mz": frag_mz,
-                    "i": frag_i,
-                    "rt": t,
-                    "id": i,
-                    "precursor_mz": 100,
-                    "precursor_i": 100,
-                    "precursor_charge": 1,
-                    "precursor_scan_id": prec_scan_id,
-                }
-            )
-            mol_scan_dict[mol]["ms2_scans"].append(i)
+            if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
+                (
+                    peak_properties[mol_plus]["scan_start_time"]
+                    + peak_properties[mol_plus]["peak_width"]
+                )
+                >= t
+            ):
+                mol_indexer = ms2 % len(isotopologue_lib)
+                mol_name = peak_properties[mol_plus]["trivial_name"]
+                peaks = fragmentor.fragment(mol_name)
+                frag_mz = peaks[:, 0]
+                frag_i = peaks[:, 1]
+                ms2_scan = Scan(
+                    {
+                        "mz": frag_mz,
+                        "i": frag_i,
+                        "rt": t,
+                        "id": i,
+                        "precursor_mz": 100,
+                        "precursor_i": 100,
+                        "precursor_charge": 1,
+                        "precursor_scan_id": prec_scan_id,
+                    }
+                )
+                t += ms_rt_diff
+                if t > gradient_length:
+                    break
+            else:
+                # breakpoint()
+                # print(t)
+                ms2_scan = Scan(
+                    {
+                        "mz": [],
+                        "i": [],
+                        "rt": t,
+                        "id": i,
+                        "precursor_mz": None,
+                        "precursor_i": None,
+                        "precursor_charge": 1,
+                        "precursor_scan_id": prec_scan_id,
+                    }
+                )
+                t += ms_rt_diff
+                # if t > gradient_length:
+                #     break
 
+            mol_scan_dict[mol]["ms2_scans"].append(i)
             scans[-1][1].append(ms2_scan)
-            t += ms_rt_diff
             i += 1
     return scans, mol_scan_dict
 
@@ -276,6 +340,7 @@ def generate_molecule_isotopologue_lib(molecules: List[str], charges: List[int] 
         reduced_lib = {}
         for mol in lib:
             data = lib[mol]["env"][(("N", "0.000"),)]
+            # todo use correct charge states ==> hardcoded 1
             reduced_lib[mol] = {"mz": data[1]["mz"], "i": data["relabun"]}
     else:
         reduced_lib = {}
