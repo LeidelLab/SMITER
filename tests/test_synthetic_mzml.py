@@ -202,7 +202,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     }
     mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1507
+    assert reader.get_spectrum_count() == 1499
 
     ino_rt = []
     ino_intensities = []
