@@ -1,10 +1,10 @@
 from tempfile import NamedTemporaryFile
 
 import numpy as np
-import pymzml
 import pytest
-from scipy.stats import kstest, normaltest
 
+import pymzml
+from scipy.stats import kstest, normaltest
 from smiter.fragmentation_functions import AbstractFragmentor, NucleosideFragmentor
 from smiter.synthetic_mzml import write_mzml
 
@@ -226,7 +226,6 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     assert p < 5e-4
     _, p = normaltest(adeno_intensities)
     assert p < 5e-4
-
     # assert rt max diff is about 15
     m_i = np.argmax(ino_intensities)
     m_a = np.argmax(adeno_intensities)
@@ -271,19 +270,20 @@ def test_write_inosine_proper_fragments_mzml():
                 ino_intensities.append(ino_i[0])
                 ino_rt.append(spec.scan_time[0])
         if spec.ms_level == 2:
-            # check if inosine precursor
-            # if true, add fragments to ino_fragments
-            ino_fragments.append(spec.mz)
+            # 9 out of 10 specs are empty, only collect the one
+            if len(spec.mz) > 0:
+                ino_fragments.append(spec.mz)
             pass
 
     _, p = normaltest(ino_intensities)
     assert p < 5e-4
-
     expected_frags = np.array([137.0457872316])
     # Check ino fragments are correct
     from pprint import pprint
+
     # pprint(ino_fragments)
     for frag_list in ino_fragments:
+        print(frag_list)
         assert len(frag_list) == len(expected_frags)
         # breakpoint()
         sorted_frags = np.sort(frag_list)
