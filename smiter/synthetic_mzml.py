@@ -3,10 +3,10 @@ import io
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
+
 import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
-
 from smiter.fragmentation_functions import AbstractFragmentor
 from smiter.lib import calc_mz
 from smiter.peak_distribution import distributions
@@ -175,8 +175,22 @@ def write_mzml(
 #     return scans
 
 
-def rescale_intensity(i, rt, molecule, peak_properties, isotopologue_lib):
-    scale_func = peak_properties[f"+{molecule}"]['peak_function']
+def rescale_intensity(
+    i: float, rt: float, molecule: str, peak_properties: dict, isotopologue_lib: dict
+):
+    """Rescale intensity value for a given molecule according to scale factor and distribution function.
+
+    Args:
+        i (TYPE): Description
+        rt (TYPE): Description
+        molecule (TYPE): Description
+        peak_properties (TYPE): Description
+        isotopologue_lib (TYPE): Description
+
+    Returns:
+        TYPE: Description
+    """
+    scale_func = peak_properties[f"+{molecule}"]["peak_function"]
     rt_max = (
         peak_properties[f"+{molecule}"]["scan_start_time"]
         + peak_properties[f"+{molecule}"]["peak_width"]
@@ -200,7 +214,9 @@ def rescale_intensity(i, rt, molecule, peak_properties, isotopologue_lib):
         )
     elif scale_func is None:
         dist_scale_factor = 1
-    i *= dist_scale_factor * peak_properties[f"+{molecule}"].get('peak_scaling_factor', 1e3)
+    i *= dist_scale_factor * peak_properties[f"+{molecule}"].get(
+        "peak_scaling_factor", 1e3
+    )
     return i
 
 
@@ -239,6 +255,7 @@ def generate_scans(
     molecules = list(isotopologue_lib.keys())
     while t < gradient_length:
         scan_peaks: List[Tuple[float, float]] = []
+        mol_i = []
         for mol in isotopologue_lib:
             mol_plus = f"+{mol}"
             if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
@@ -251,14 +268,12 @@ def generate_scans(
                 mz = isotopologue_lib[mol]["mz"]
                 intensity = np.array(isotopologue_lib[mol]["i"])
                 # breakpoint()
-                intesity = rescale_intensity(intensity, t, mol, peak_properties, isotopologue_lib)
-                # breakpoint()
-                scan_peaks.extend(
-                    zip(
-                        mz,
-                        intensity,
-                    )
+                intesity = rescale_intensity(
+                    intensity, t, mol, peak_properties, isotopologue_lib
                 )
+                # breakpoint()
+                mol_i.append((mol, sum(intesity)))
+                scan_peaks.extend(zip(mz, intensity))
                 mol_scan_dict[mol]["ms1_scans"].append(i)
         scan_peaks = sorted(scan_peaks, key=lambda x: x[0])
         mz, inten = zip(*scan_peaks)
@@ -270,17 +285,35 @@ def generate_scans(
         if t > gradient_length:
             break
 
-        # TODO generate ms2 scans only in elution range
-        # TODO implement proper fragmentation for peptides and nucleosides
-        for ms2 in range(10):
-            if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
+        while len(mol_i) < 10:
+            mol_i.append((None, 0))
+        # for ms2 in range(10):
+        for mol, _intensity in sorted(mol_i, key=lambda x: x[1], reverse=True)[:10]:
+            mol_plus = f"+{mol}"
+            if mol is None:
+                # add empty scan
+                ms2_scan = Scan(
+                    {
+                        "mz": [],
+                        "i": [],
+                        "rt": t,
+                        "id": i,
+                        "precursor_mz": 100,
+                        "precursor_i": 100,
+                        "precursor_charge": 1,
+                        "precursor_scan_id": prec_scan_id,
+                    }
+                )
+                t += ms_rt_diff
+                if t > gradient_length:
+                    break
+            elif (peak_properties[mol_plus]["scan_start_time"] <= t) and (
                 (
                     peak_properties[mol_plus]["scan_start_time"]
                     + peak_properties[mol_plus]["peak_width"]
                 )
                 >= t
             ):
-                mol_indexer = ms2 % len(isotopologue_lib)
                 mol_name = peak_properties[mol_plus]["trivial_name"]
                 peaks = fragmentor.fragment(mol_name)
                 frag_mz = peaks[:, 0]
@@ -318,8 +351,8 @@ def generate_scans(
                 t += ms_rt_diff
                 # if t > gradient_length:
                 #     break
-
-            mol_scan_dict[mol]["ms2_scans"].append(i)
+            if mol is not None:
+                mol_scan_dict[mol]["ms2_scans"].append(i)
             scans[-1][1].append(ms2_scan)
             i += 1
     return scans, mol_scan_dict
@@ -359,7 +392,7 @@ def write_scans(
     Returns:
         None: Description
     """
-    id_format_str = 'controllerType=0 controllerNumber=1 scan={i}'
+    id_format_str = "controllerType=0 controllerNumber=1 scan={i}"
     with MzMLWriter(file) as writer:
         # Add default controlled vocabularies
         writer.controlled_vocabularies()
