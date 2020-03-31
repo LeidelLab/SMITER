@@ -3,10 +3,10 @@ import io
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
+
 import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
-
 from smiter.fragmentation_functions import AbstractFragmentor
 from smiter.lib import calc_mz
 from smiter.peak_distribution import distributions
