@@ -3,10 +3,10 @@ import io
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
-
 import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
+
 from smiter.fragmentation_functions import AbstractFragmentor
 from smiter.lib import calc_mz
 from smiter.peak_distribution import distributions
@@ -275,8 +275,11 @@ def generate_scans(
                 mol_i.append((mol, sum(intesity)))
                 scan_peaks.extend(zip(mz, intensity))
                 mol_scan_dict[mol]["ms1_scans"].append(i)
-        scan_peaks = sorted(scan_peaks, key=lambda x: x[0])
-        mz, inten = zip(*scan_peaks)
+        scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
+        if len(scan_peaks) > 0:
+            mz, inten = zip(*scan_peaks)
+        else:
+            mz, inten = [], []
         s = Scan({"mz": np.array(mz), "i": np.array(inten), "id": i, "rt": t,})
         prec_scan_id = i
         i += 1
@@ -402,9 +405,12 @@ def write_scans(
             with writer.spectrum_list(count=spectrum_count):
                 for scan, products in scans:
                     # Write Precursor scan
-                    index_of_max_i = np.argmax(scan.i)
-                    max_i = scan.i[index_of_max_i]
-                    mz_at_max_i = scan.mz[index_of_max_i]
+                    try:
+                        index_of_max_i = np.argmax(scan.i)
+                        max_i = scan.i[index_of_max_i]
+                        mz_at_max_i = scan.mz[index_of_max_i]
+                    except ValueError:
+                        mz_at_max_i = 0
                     # breakpoint()
                     writer.write_spectrum(
                         scan.mz,
