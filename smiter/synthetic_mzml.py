@@ -256,6 +256,7 @@ def generate_scans(
     while t < gradient_length:
         scan_peaks: List[Tuple[float, float]] = []
         mol_i = []
+        mol_monoisotopic = {}
         for mol in isotopologue_lib:
             mol_plus = f"+{mol}"
             if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
@@ -273,8 +274,14 @@ def generate_scans(
                 )
                 # breakpoint()
                 mol_i.append((mol, sum(intesity)))
-                scan_peaks.extend(zip(mz, intensity))
+                mol_peaks = list(zip(mz, intensity))
+                scan_peaks.extend(mol_peaks)
                 mol_scan_dict[mol]["ms1_scans"].append(i)
+                if len(mol_peaks) > 0:
+                    highest_peak = max(mol_peaks, key=lambda x: x[1])
+                else:
+                    highest_peak = (0, 0)
+                mol_monoisotopic[mol] = {'mz': highest_peak[0], "i": highest_peak[1]}
         scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
         if len(scan_peaks) > 0:
             mz, inten = zip(*scan_peaks)
@@ -301,8 +308,8 @@ def generate_scans(
                         "i": [],
                         "rt": t,
                         "id": i,
-                        "precursor_mz": 100,
-                        "precursor_i": 100,
+                        "precursor_mz": 0,
+                        "precursor_i": 0,
                         "precursor_charge": 1,
                         "precursor_scan_id": prec_scan_id,
                     }
@@ -327,8 +334,8 @@ def generate_scans(
                         "i": frag_i,
                         "rt": t,
                         "id": i,
-                        "precursor_mz": 100,
-                        "precursor_i": 100,
+                        "precursor_mz": mol_monoisotopic[mol]["mz"],
+                        "precursor_i": mol_monoisotopic[mol]["i"],
                         "precursor_charge": 1,
                         "precursor_scan_id": prec_scan_id,
                     }
