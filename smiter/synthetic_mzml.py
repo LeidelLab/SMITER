@@ -444,11 +444,13 @@ def write_scans(
                             # TOFIX adding precursor information makes psims crash
                             # Include precursor information
                             # precursor_information=prec_info
-                            # precursor_information={
-                            # "mz": prod.precursor_mz,
-                            # "intensity": prod.precursor_i,
-                            # "charge": prod.precursor_charge,
-                            # "scan_id": prod.precursor_scan_id,
-                            # },
+                            precursor_information={
+                                "mz": prod.precursor_mz,
+                                "intensity": prod.precursor_i,
+                                "charge": prod.precursor_charge,
+                                "scan_id": id_format_str.format(i=scan.id),
+                                "spectrum_reference": id_format_str.format(i=scan.id),
+                                "activation": ["HCD", {"collision energy": 25.0}],
+                            },
                         )
     return
