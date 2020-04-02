@@ -407,6 +407,8 @@ def write_scans(
         # Add default controlled vocabularies
         writer.controlled_vocabularies()
         # Open the run and spectrum list sections
+        time_array = []
+        intensity_array = []
         with writer.run(id="Simulated Run"):
             spectrum_count = len(scans) + sum([len(products) for _, products in scans])
             with writer.spectrum_list(count=spectrum_count):
@@ -419,6 +421,7 @@ def write_scans(
                     except ValueError:
                         mz_at_max_i = 0
                     # breakpoint()
+                    spec_tic = sum(scan.i)
                     writer.write_spectrum(
                         scan.mz,
                         scan.i,
@@ -427,14 +430,15 @@ def write_scans(
                             "MS1 Spectrum",
                             {"ms level": 1},
                             {"scan start time": scan.retention_time},
-                            {"total ion current": sum(scan.i)},
+                            {"total ion current": spec_tic},
                             {"base peak m/z": mz_at_max_i},
                             {"base peak intensity": max_i},
                         ],
                     )
+                    time_array.append(scan.retention_time)
+                    intensity_array.append(spec_tic)
                     # Write MSn scans
                     for prod in products:
-                        prec_info = {"mz": 100}
                         writer.write_spectrum(
                             prod.mz,
                             prod.i,
@@ -460,4 +464,7 @@ def write_scans(
                                 "activation": ["HCD", {"collision energy": 25.0}],
                             },
                         )
+            with writer.chromatogram_list(count=1):
+                writer.write_chromatogram(
+                    time_array, intensity_array, id='TIC', chromatogram_type="total ion current")
     return
