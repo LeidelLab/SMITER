@@ -256,6 +256,7 @@ def generate_scans(
     while t < gradient_length:
         scan_peaks: List[Tuple[float, float]] = []
         mol_i = []
+        mol_monoisotopic = {}
         for mol in isotopologue_lib:
             mol_plus = f"+{mol}"
             if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
@@ -273,8 +274,14 @@ def generate_scans(
                 )
                 # breakpoint()
                 mol_i.append((mol, sum(intesity)))
-                scan_peaks.extend(zip(mz, intensity))
+                mol_peaks = list(zip(mz, intensity))
+                scan_peaks.extend(mol_peaks)
                 mol_scan_dict[mol]["ms1_scans"].append(i)
+                if len(mol_peaks) > 0:
+                    highest_peak = max(mol_peaks, key=lambda x: x[1])
+                else:
+                    highest_peak = (0, 0)
+                mol_monoisotopic[mol] = {"mz": highest_peak[0], "i": highest_peak[1]}
         scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
         if len(scan_peaks) > 0:
             mz, inten = zip(*scan_peaks)
@@ -301,8 +308,8 @@ def generate_scans(
                         "i": [],
                         "rt": t,
                         "id": i,
-                        "precursor_mz": 100,
-                        "precursor_i": 100,
+                        "precursor_mz": 0,
+                        "precursor_i": 0,
                         "precursor_charge": 1,
                         "precursor_scan_id": prec_scan_id,
                     }
@@ -327,8 +334,8 @@ def generate_scans(
                         "i": frag_i,
                         "rt": t,
                         "id": i,
-                        "precursor_mz": 100,
-                        "precursor_i": 100,
+                        "precursor_mz": mol_monoisotopic[mol]["mz"],
+                        "precursor_i": mol_monoisotopic[mol]["i"],
                         "precursor_charge": 1,
                         "precursor_scan_id": prec_scan_id,
                     }
@@ -400,6 +407,8 @@ def write_scans(
         # Add default controlled vocabularies
         writer.controlled_vocabularies()
         # Open the run and spectrum list sections
+        time_array = []
+        intensity_array = []
         with writer.run(id="Simulated Run"):
             spectrum_count = len(scans) + sum([len(products) for _, products in scans])
             with writer.spectrum_list(count=spectrum_count):
@@ -412,6 +421,7 @@ def write_scans(
                     except ValueError:
                         mz_at_max_i = 0
                     # breakpoint()
+                    spec_tic = sum(scan.i)
                     writer.write_spectrum(
                         scan.mz,
                         scan.i,
@@ -420,14 +430,15 @@ def write_scans(
                             "MS1 Spectrum",
                             {"ms level": 1},
                             {"scan start time": scan.retention_time},
-                            {"total ion current": sum(scan.i)},
+                            {"total ion current": spec_tic},
                             {"base peak m/z": mz_at_max_i},
                             {"base peak intensity": max_i},
                         ],
                     )
+                    time_array.append(scan.retention_time)
+                    intensity_array.append(spec_tic)
                     # Write MSn scans
                     for prod in products:
-                        prec_info = {"mz": 100}
                         writer.write_spectrum(
                             prod.mz,
                             prod.i,
@@ -453,4 +464,11 @@ def write_scans(
                                 "activation": ["HCD", {"collision energy": 25.0}],
                             },
                         )
+            with writer.chromatogram_list(count=1):
+                writer.write_chromatogram(
+                    time_array,
+                    intensity_array,
+                    id="TIC",
+                    chromatogram_type="total ion current",
+                )
     return
