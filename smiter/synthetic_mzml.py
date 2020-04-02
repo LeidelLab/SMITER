@@ -281,7 +281,7 @@ def generate_scans(
                     highest_peak = max(mol_peaks, key=lambda x: x[1])
                 else:
                     highest_peak = (0, 0)
-                mol_monoisotopic[mol] = {'mz': highest_peak[0], "i": highest_peak[1]}
+                mol_monoisotopic[mol] = {"mz": highest_peak[0], "i": highest_peak[1]}
         scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
         if len(scan_peaks) > 0:
             mz, inten = zip(*scan_peaks)
@@ -466,5 +466,9 @@ def write_scans(
                         )
             with writer.chromatogram_list(count=1):
                 writer.write_chromatogram(
-                    time_array, intensity_array, id='TIC', chromatogram_type="total ion current")
+                    time_array,
+                    intensity_array,
+                    id="TIC",
+                    chromatogram_type="total ion current",
+                )
     return
