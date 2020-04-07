@@ -13,6 +13,7 @@ from smiter.ext.nucleoside_fragment_kb import (
     KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
 )
 from smiter.lib import calc_mz
+from peptide_fragmentor import PeptideFragment0r
 
 try:
     from smiter.ext.nucleoside_fragment_kb import KB_FRAGMENTATION_INFO
@@ -40,9 +41,10 @@ class AbstractFragmentor(ABC):
 class PeptideFragmentor(AbstractFragmentor):
     """Summary."""
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """Summary."""
-        pass
+        self.args = args
+        self.kwargs = kwargs
 
     def fragment(self, entity):
         """Summary.
@@ -50,7 +52,10 @@ class PeptideFragmentor(AbstractFragmentor):
         Args:
             entity (TYPE): Description
         """
-        pass
+        results_table = PeptideFragment0r(entity, **self.kwargs).df
+        i = np.array([100 for i in range(len(results_table))])
+        mz_i = np.stack((results_table['mz'], i), axis=1)
+        return mz_i
 
 
 class NucleosideFragmentor(AbstractFragmentor):
