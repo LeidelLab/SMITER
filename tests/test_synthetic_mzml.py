@@ -275,7 +275,6 @@ def test_write_inosine_proper_fragments_mzml():
     }
 
     nucl_fragmentor = NucleosideFragmentor()
-
     mzml_path = write_mzml(file, peak_props, nucl_fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
