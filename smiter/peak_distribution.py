@@ -42,20 +42,20 @@ def gamma_dist(x: float, a: float = 5, scale: float = 0.33):
     return gamma.pdf(x, a=a, scale=scale)
 
 
-def flat(x):
-    """Summary.
+# def flat(x):
+#     """Summary.
 
-    Args:
-        x (TYPE): Description
+#     Args:
+#         x (TYPE): Description
 
-    Returns:
-        TYPE: Description
-    """
-    return x
+#     Returns:
+#         TYPE: Description
+#     """
+#     return x
 
 
 distributions = {
     "gauss": gauss_dist,
     "gamma": gamma_dist,
-    "flat": flat,
+    # "flat": flat,
 }  # type: Dict[str, Callable]

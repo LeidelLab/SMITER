@@ -3,10 +3,10 @@ import io
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
-
 import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
+
 from smiter.fragmentation_functions import AbstractFragmentor
 from smiter.lib import calc_mz
 from smiter.peak_distribution import distributions
@@ -36,10 +36,10 @@ class Scan(dict):
         v = self.get("i", None)
         return v
 
-    @i.setter
-    def i(self, i):
-        """Summary."""
-        self["i"] = i
+    # @i.setter
+    # def i(self, i):
+    #     """Summary."""
+    #     self["i"] = i
 
     @property
     def id(self):
@@ -65,11 +65,11 @@ class Scan(dict):
         v = self.get("precursor_charge", None)
         return v
 
-    @property
-    def precursor_scan_id(self):
-        """Summary."""
-        v = self.get("precursor_scan_id", None)
-        return v
+    # @property
+    # def precursor_scan_id(self):
+    #     """Summary."""
+    #     v = self.get("precursor_scan_id", None)
+    #     return v
 
     @property
     def retention_time(self):
@@ -77,15 +77,15 @@ class Scan(dict):
         v = self.get("rt", None)
         return v
 
-    @property
-    def ms_level(self):
-        """Summary.
+    # @property
+    # def ms_level(self):
+    #     """Summary.
 
-        Returns:
-            TYPE: Description
-        """
-        v = self.get("ms_level", None)
-        return v
+    #     Returns:
+    #         TYPE: Description
+    #     """
+    #     v = self.get("ms_level", None)
+    #     return v
 
 
 def write_mzml(
@@ -106,15 +106,19 @@ def write_mzml(
     filename = file if isinstance(file, str) else file.name
     scans = []
     # pass list of all charge states in peak properties
-    trivial_names = {key: value['trivial_name'] for key, value in peak_properties.items()}
+    trivial_names = {
+        key: value["trivial_name"] for key, value in peak_properties.items()
+    }
     # dicts are sorted, language specification since python 3.7+
-    isotopologue_lib = generate_molecule_isotopologue_lib(peak_properties, trivial_names=trivial_names)
-    if len(isotopologue_lib) > 0:
-        scans, scan_dict = generate_scans(
-            isotopologue_lib, peak_properties, fragmentor, mzml_params
-        )
-    else:
-        scans, scan_dict = [], {}
+    isotopologue_lib = generate_molecule_isotopologue_lib(
+        peak_properties, trivial_names=trivial_names
+    )
+    # if len(isotopologue_lib) > 0:
+    scans, scan_dict = generate_scans(
+        isotopologue_lib, peak_properties, fragmentor, mzml_params
+    )
+    # else:
+    # scans, scan_dict = [], {}
     # TODO also rescale ms2 scans?
     # TODO ms2 scan intensitity as fraction of precursor intensity?
     # scans = rescale_ms1_scans(
@@ -197,13 +201,12 @@ def generate_scans(
     scans: List[Tuple[Scan, List[Scan]]] = []
     i = 0
 
-    if len(isotopologue_lib) == 0:
-        return []
+    # if len(isotopologue_lib) == 0:
+    #     return []
 
     mol_scan_dict = {
         mol: {"ms1_scans": [], "ms2_scans": []} for mol in isotopologue_lib
     }
-
     molecules = list(isotopologue_lib.keys())
     while t < gradient_length:
         scan_peaks: List[Tuple[float, float]] = []
@@ -227,10 +230,10 @@ def generate_scans(
                 mol_peaks = list(zip(mz, intensity))
                 scan_peaks.extend(mol_peaks)
                 mol_scan_dict[mol]["ms1_scans"].append(i)
-                if len(mol_peaks) > 0:
-                    highest_peak = max(mol_peaks, key=lambda x: x[1])
-                else:
-                    highest_peak = (0, 0)
+                # if len(mol_peaks) > 0:
+                highest_peak = max(mol_peaks, key=lambda x: x[1])
+                # else:
+                #     highest_peak = (0, 0)
                 mol_monoisotopic[mol] = {"mz": highest_peak[0], "i": highest_peak[1]}
         scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
         if len(scan_peaks) > 0:
@@ -293,23 +296,23 @@ def generate_scans(
                 t += ms_rt_diff
                 if t > gradient_length:
                     break
-            else:
-                # print(t)
-                ms2_scan = Scan(
-                    {
-                        "mz": [],
-                        "i": [],
-                        "rt": t,
-                        "id": i,
-                        "precursor_mz": None,
-                        "precursor_i": None,
-                        "precursor_charge": 1,
-                        "precursor_scan_id": prec_scan_id,
-                    }
-                )
-                t += ms_rt_diff
-                # if t > gradient_length:
-                #     break
+            # else:
+            #     # print(t)
+            #     ms2_scan = Scan(
+            #         {
+            #             "mz": [],
+            #             "i": [],
+            #             "rt": t,
+            #             "id": i,
+            #             "precursor_mz": None,
+            #             "precursor_i": None,
+            #             "precursor_charge": 1,
+            #             "precursor_scan_id": prec_scan_id,
+            #         }
+            #     )
+            #     t += ms_rt_diff
+            # if t > gradient_length:
+            #     break
             if mol is not None:
                 mol_scan_dict[mol]["ms2_scans"].append(i)
             scans[-1][1].append(ms2_scan)
@@ -317,7 +320,11 @@ def generate_scans(
     return scans, mol_scan_dict
 
 
-def generate_molecule_isotopologue_lib(peak_properties: Dict[str, dict], charges: List[int] = None, trivial_names: Dict[str, str] = None):
+def generate_molecule_isotopologue_lib(
+    peak_properties: Dict[str, dict],
+    charges: List[int] = None,
+    trivial_names: Dict[str, str] = None,
+):
     """Summary.
 
     Args:
@@ -328,7 +335,10 @@ def generate_molecule_isotopologue_lib(peak_properties: Dict[str, dict], charges
     if len(peak_properties) > 0:
         molecules = peak_properties.keys()
         lib = pyqms.IsotopologueLibrary(
-            molecules=molecules, charges=charges, verbose=False, trivial_names=trivial_names
+            molecules=molecules,
+            charges=charges,
+            verbose=False,
+            trivial_names=trivial_names,
         )
         reduced_lib = {}
         # for mol in lib:
@@ -376,6 +386,7 @@ def write_scans(
                         mz_at_max_i = scan.mz[index_of_max_i]
                     except ValueError:
                         mz_at_max_i = 0
+                        max_i = 0
                     spec_tic = sum(scan.i)
                     writer.write_spectrum(
                         scan.mz,
