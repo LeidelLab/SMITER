@@ -1,24 +1,16 @@
 from tempfile import NamedTemporaryFile
 
 import numpy as np
-import pytest
-
 import pymzml
+import pytest
 from scipy.stats import kstest, normaltest
-from smiter.fragmentation_functions import AbstractFragmentor, NucleosideFragmentor, PeptideFragmentor
+
+from smiter.fragmentation_functions import (
+    AbstractFragmentor,
+    NucleosideFragmentor,
+    PeptideFragmentor,
+)
 from smiter.synthetic_mzml import write_mzml
-
-
-def simple_fragmentation_function(mol):
-    """Test frag function.
-
-    Args:
-        mol (str): molecule to fragment
-
-    Returns:
-        list: list of fragment mzs
-    """
-    return [200]
 
 
 class TestFragmentor(AbstractFragmentor):
@@ -44,6 +36,18 @@ def test_write_mzml():
     assert reader.get_spectrum_count() == 0
 
 
+def test_write_empty_mzml():
+    """Write a mzML without spectra readable by pymzML."""
+    file = NamedTemporaryFile("wb")
+    peak_props = {}
+    mzml_params = {
+        "gradient_length": 5,
+    }
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
+    reader = pymzml.run.Reader(mzml_path)
+    assert reader.get_spectrum_count() == 166
+
+
 def test_write_inosine_flat_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
@@ -59,7 +63,7 @@ def test_write_inosine_flat_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(file, peak_props, fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
 
@@ -79,7 +83,7 @@ def test_write_inosine_gauss_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(file, peak_props, fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
     intensities = []
@@ -106,7 +110,7 @@ def test_write_mzml_get_TIC():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(file, peak_props, fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
     reader = pymzml.run.Reader(mzml_path)
@@ -114,8 +118,8 @@ def test_write_mzml_get_TIC():
     for spec in reader:
         if spec.ms_level == 1:
             tics.append(sum(spec.i))
-    tic = reader['TIC']
-    assert (tic.peaks()[:, 1] == np.array(tics, dtype='float32')).all()
+    tic = reader["TIC"]
+    assert (tic.peaks()[:, 1] == np.array(tics, dtype="float32")).all()
 
 
 def test_write_inosine_gamma_mzml():
@@ -133,7 +137,7 @@ def test_write_inosine_gamma_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(file, peak_props, fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
     intensities = []
@@ -169,7 +173,7 @@ def test_write_inosine_adenosine_gauss_mzml():
     mzml_params = {
         "gradient_length": 30,
     }
-    mzml_path = write_mzml(file, peak_props, fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
 
@@ -220,7 +224,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     mzml_params = {
         "gradient_length": 45,
     }
-    mzml_path = write_mzml(file, peak_props, fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 1499
 
@@ -271,8 +275,7 @@ def test_write_inosine_proper_fragments_mzml():
     }
 
     nucl_fragmentor = NucleosideFragmentor()
-
-    mzml_path = write_mzml(file, peak_props, nucl_fragmentor,  mzml_params)
+    mzml_path = write_mzml(file, peak_props, nucl_fragmentor, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
 

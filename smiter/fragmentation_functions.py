@@ -7,8 +7,9 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
 
 import numpy as np
-
 import pyqms
+from peptide_fragmentor import PeptideFragment0r
+
 from smiter.ext.nucleoside_fragment_kb import (
     KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
 )
@@ -17,8 +18,8 @@ from peptide_fragmentor import PeptideFragment0r
 
 try:
     from smiter.ext.nucleoside_fragment_kb import KB_FRAGMENTATION_INFO
-except ImportError:
-    print("Nucleoside fragmentation KB not available")
+except ImportError:  # pragma: no cover
+    print("Nucleoside fragmentation KB not available")  # pragma: no cover
 
 
 class AbstractFragmentor(ABC):
@@ -26,7 +27,7 @@ class AbstractFragmentor(ABC):
 
     def __init__(self):
         """Summary."""
-        super().__init__()
+        pass  # pragma: no cover
 
     @abstractmethod
     def fragment(self, entity):
@@ -35,7 +36,7 @@ class AbstractFragmentor(ABC):
         Args:
             entity (TYPE): Description
         """
-        pass
+        pass  # pragma: no cover
 
 
 class PeptideFragmentor(AbstractFragmentor):
@@ -54,7 +55,7 @@ class PeptideFragmentor(AbstractFragmentor):
         """
         results_table = PeptideFragment0r(entity, **self.kwargs).df
         i = np.array([100 for i in range(len(results_table))])
-        mz_i = np.stack((results_table['mz'], i), axis=1)
+        mz_i = np.stack((results_table["mz"], i), axis=1)
         return mz_i
 
 

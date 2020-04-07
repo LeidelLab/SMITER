@@ -12,4 +12,5 @@ Click==7.0
 pytest==4.6.5
 pytest-runner==5.1
 pydocstyle
+coverage==4.5.4
 -r requirements.txt

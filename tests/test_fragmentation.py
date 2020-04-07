@@ -6,7 +6,7 @@ from smiter.fragmentation_functions import NucleosideFragmentor, PeptideFragment
 
 def test_fragment_peptide():
     """Summary."""
-    fragger = PeptideFragmentor(charges=1, ions=['y'])
+    fragger = PeptideFragmentor(charges=1, ions=["y"])
     peaks = fragger.fragment("L")
     expected_mzs = np.array([132.101])
     assert ((peaks[:, 0] - expected_mzs) < 0.001).all()
