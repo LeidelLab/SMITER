@@ -90,9 +90,9 @@ class Scan(dict):
 
 def write_mzml(
     file: Union[str, io.TextIOWrapper],
-    molecules: List[str],
-    fragmentor: AbstractFragmentor,
     peak_properties: Dict[str, dict],
+    # molecules: List[str],
+    fragmentor: AbstractFragmentor,
     mzml_params: Dict[str, Union[int, float, str]],
 ) -> str:
     """Write mzML file with chromatographic peaks and fragment spectra for the given molecules.
@@ -106,7 +106,9 @@ def write_mzml(
     filename = file if isinstance(file, str) else file.name
     scans = []
     # pass list of all charge states in peak properties
-    isotopologue_lib = generate_molecule_isotopologue_lib(molecules)
+    trivial_names = {key: value['trivial_name'] for key, value in peak_properties.items()}
+    # dicts are sorted, language specification since python 3.7+
+    isotopologue_lib = generate_molecule_isotopologue_lib(peak_properties, trivial_names=trivial_names)
     if len(isotopologue_lib) > 0:
         scans, scan_dict = generate_scans(
             isotopologue_lib, peak_properties, fragmentor, mzml_params
@@ -125,56 +127,6 @@ def write_mzml(
     return filename
 
 
-# def rescale_ms1_scans(
-#     scans: list, scan_dict: dict, peak_properties=None, isotopologue_lib=None
-# ):
-#     """Summary.
-
-#     Args:
-#         scans (list): Description
-#         scan_dict (dict): Description
-#     """
-#     if peak_properties is None:
-#         peak_properties = {}
-
-#     # TODO: fix for overlapping ms1 peak scaling
-#     for molecule in scan_dict:
-#         # scan_num = len(scan_dict[molecule]["ms1_scans"])
-#         # scan_max = max(scan_dict[molecule]["ms1_scans"])
-#         scale_func = peak_properties[f"+{molecule}"]["peak_function"]
-#         i = 0
-#         rt_max = (
-#             peak_properties[f"+{molecule}"]["scan_start_time"]
-#             + peak_properties[f"+{molecule}"]["peak_width"]
-#         )
-#         mu = (
-#             peak_properties[f"+{molecule}"]["scan_start_time"]
-#             + 0.5 * peak_properties[f"+{molecule}"]["peak_width"]
-#         )
-#         for _, scan_list in enumerate(scans):
-#             i += 1
-#             s = scan_list[0]
-#             if scale_func == "gauss":
-#                 scale_factor = distributions[scale_func](
-#                     # i,
-#                     s.retention_time,
-#                     mu=mu,
-#                     sigma=peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
-#                 )
-#             elif scale_func == "gamma":
-#                 scale_factor = distributions[scale_func](
-#                     i,
-#                     a=peak_properties[f"+{molecule}"]["peak_params"]["a"],
-#                     scale=peak_properties[f"+{molecule}"]["peak_params"]["scale"],
-#                 )
-#             elif scale_func is None:
-#                 scale_factor = 1
-#             for mz in isotopologue_lib[molecule]["mz"]:
-#                 filter = abs(s.mz - mz) < 0.002
-#                 s.i[filter] = s.i[filter] * scale_factor * peak_properties[f"+{molecule}"]["peak_params"].get('scaling_factor', 1e3)
-#     return scans
-
-
 def rescale_intensity(
     i: float, rt: float, molecule: str, peak_properties: dict, isotopologue_lib: dict
 ):
@@ -190,31 +142,31 @@ def rescale_intensity(
     Returns:
         TYPE: Description
     """
-    scale_func = peak_properties[f"+{molecule}"]["peak_function"]
+    scale_func = peak_properties[f"{molecule}"]["peak_function"]
     rt_max = (
-        peak_properties[f"+{molecule}"]["scan_start_time"]
-        + peak_properties[f"+{molecule}"]["peak_width"]
+        peak_properties[f"{molecule}"]["scan_start_time"]
+        + peak_properties[f"{molecule}"]["peak_width"]
     )
     mu = (
-        peak_properties[f"+{molecule}"]["scan_start_time"]
-        + 0.5 * peak_properties[f"+{molecule}"]["peak_width"]
+        peak_properties[f"{molecule}"]["scan_start_time"]
+        + 0.5 * peak_properties[f"{molecule}"]["peak_width"]
     )
     if scale_func == "gauss":
         dist_scale_factor = distributions[scale_func](
             # i,
             rt,
             mu=mu,
-            sigma=peak_properties[f"+{molecule}"]["peak_params"]["sigma"],
+            sigma=peak_properties[f"{molecule}"]["peak_params"]["sigma"],
         )
     elif scale_func == "gamma":
         dist_scale_factor = distributions[scale_func](
             rt,
-            a=peak_properties[f"+{molecule}"]["peak_params"]["a"],
-            scale=peak_properties[f"+{molecule}"]["peak_params"]["scale"],
+            a=peak_properties[f"{molecule}"]["peak_params"]["a"],
+            scale=peak_properties[f"{molecule}"]["peak_params"]["scale"],
         )
     elif scale_func is None:
         dist_scale_factor = 1
-    i *= dist_scale_factor * peak_properties[f"+{molecule}"].get(
+    i *= dist_scale_factor * peak_properties[f"{molecule}"].get(
         "peak_scaling_factor", 1e3
     )
     return i
@@ -258,7 +210,7 @@ def generate_scans(
         mol_i = []
         mol_monoisotopic = {}
         for mol in isotopologue_lib:
-            mol_plus = f"+{mol}"
+            mol_plus = f"{mol}"
             if (peak_properties[mol_plus]["scan_start_time"] <= t) and (
                 (
                     peak_properties[mol_plus]["scan_start_time"]
@@ -268,11 +220,9 @@ def generate_scans(
             ):
                 mz = isotopologue_lib[mol]["mz"]
                 intensity = np.array(isotopologue_lib[mol]["i"])
-                # breakpoint()
                 intesity = rescale_intensity(
                     intensity, t, mol, peak_properties, isotopologue_lib
                 )
-                # breakpoint()
                 mol_i.append((mol, sum(intesity)))
                 mol_peaks = list(zip(mz, intensity))
                 scan_peaks.extend(mol_peaks)
@@ -299,7 +249,7 @@ def generate_scans(
             mol_i.append((None, 0))
         # for ms2 in range(10):
         for mol, _intensity in sorted(mol_i, key=lambda x: x[1], reverse=True)[:10]:
-            mol_plus = f"+{mol}"
+            mol_plus = f"{mol}"
             if mol is None:
                 # add empty scan
                 ms2_scan = Scan(
@@ -344,7 +294,6 @@ def generate_scans(
                 if t > gradient_length:
                     break
             else:
-                # breakpoint()
                 # print(t)
                 ms2_scan = Scan(
                     {
@@ -368,7 +317,7 @@ def generate_scans(
     return scans, mol_scan_dict
 
 
-def generate_molecule_isotopologue_lib(molecules: List[str], charges: List[int] = None):
+def generate_molecule_isotopologue_lib(peak_properties: Dict[str, dict], charges: List[int] = None, trivial_names: Dict[str, str] = None):
     """Summary.
 
     Args:
@@ -376,14 +325,21 @@ def generate_molecule_isotopologue_lib(molecules: List[str], charges: List[int] 
     """
     if charges is None:
         charges = [1]
-    if len(molecules) > 0:
+    if len(peak_properties) > 0:
+        molecules = peak_properties.keys()
         lib = pyqms.IsotopologueLibrary(
-            molecules=molecules, charges=charges, verbose=False
+            molecules=molecules, charges=charges, verbose=False, trivial_names=trivial_names
         )
         reduced_lib = {}
-        for mol in lib:
-            data = lib[mol]["env"][(("N", "0.000"),)]
+        # for mol in lib:
+        for mol in molecules:
+            formula = lib.lookup["molecule to formula"][mol]
+            data = lib[formula]["env"][(("N", "0.000"),)]
             # todo use correct charge states ==> hardcoded 1
+            # try:
+            #     triv_name = lib.lookup['molecule to trivial name'][mol]
+            # except KeyError:
+            #     triv_name = lib.lookup['molecule to trivial name'][f"+{mol}"]
             reduced_lib[mol] = {"mz": data[1]["mz"], "i": data["relabun"]}
     else:
         reduced_lib = {}
@@ -420,7 +376,6 @@ def write_scans(
                         mz_at_max_i = scan.mz[index_of_max_i]
                     except ValueError:
                         mz_at_max_i = 0
-                    # breakpoint()
                     spec_tic = sum(scan.i)
                     writer.write_spectrum(
                         scan.mz,
