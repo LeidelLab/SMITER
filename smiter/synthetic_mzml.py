@@ -8,7 +8,7 @@ import scipy as sci
 from psims.mzml import MzMLWriter
 
 from smiter.fragmentation_functions import AbstractFragmentor
-from smiter.lib import calc_mz
+from smiter.lib import calc_mz, check_mzml_params, check_peak_properties
 from smiter.peak_distribution import distributions
 
 
@@ -103,6 +103,10 @@ def write_mzml(
         fragmentation_function (Callable[[str], List[Tuple[float, float]]], optional): Description
         peak_properties (Dict[str, dict], optional): Description
     """
+    # check params and raise Exception(s) if necessary
+    mzml_params = check_mzml_params(mzml_params)
+    peak_properties = check_peak_properties(peak_properties)
+
     filename = file if isinstance(file, str) else file.name
     scans = []
     # pass list of all charge states in peak properties
@@ -160,7 +164,9 @@ def rescale_intensity(
             # i,
             rt,
             mu=mu,
-            sigma=peak_properties[f"{molecule}"]["peak_params"]["sigma"],
+            sigma=peak_properties[f"{molecule}"]["peak_params"].get(
+                "sigma", peak_properties[f"{molecule}"]["peak_width"] / 10
+            ),
         )
     elif scale_func == "gamma":
         dist_scale_factor = distributions[scale_func](

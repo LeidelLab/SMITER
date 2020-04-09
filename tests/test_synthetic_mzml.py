@@ -119,7 +119,7 @@ def test_write_mzml_get_TIC():
         if spec.ms_level == 1:
             tics.append(sum(spec.i))
     tic = reader["TIC"]
-    assert (tic.peaks()[:, 1] == np.array(tics, dtype="float32")).all()
+    assert tic.peaks()[:, 1] == pytest.approx(np.array(tics, dtype="float32"))
 
 
 def test_write_inosine_gamma_mzml():
