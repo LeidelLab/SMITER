@@ -14,7 +14,6 @@ from smiter.ext.nucleoside_fragment_kb import (
     KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
 )
 from smiter.lib import calc_mz
-from peptide_fragmentor import PeptideFragment0r
 
 try:
     from smiter.ext.nucleoside_fragment_kb import KB_FRAGMENTATION_INFO
@@ -25,6 +24,7 @@ except ImportError:  # pragma: no cover
 class AbstractFragmentor(ABC):
     """Summary."""
 
+    @abstractmethod
     def __init__(self):
         """Summary."""
         pass  # pragma: no cover
