@@ -30,16 +30,21 @@ class Scan(dict):
         v = self.get("mz", None)
         return v
 
+    @mz.setter
+    def mz(self, mz):
+        """Summary."""
+        self['mz'] = mz
+
     @property
     def i(self):
         """Summary."""
         v = self.get("i", None)
         return v
 
-    # @i.setter
-    # def i(self, i):
-    #     """Summary."""
-    #     self["i"] = i
+    @i.setter
+    def i(self, i):
+        """Summary."""
+        self["i"] = i
 
     @property
     def id(self):
@@ -77,15 +82,15 @@ class Scan(dict):
         v = self.get("rt", None)
         return v
 
-    # @property
-    # def ms_level(self):
-    #     """Summary.
+    @property
+    def ms_level(self):
+        """Summary.
 
-    #     Returns:
-    #         TYPE: Description
-    #     """
-    #     v = self.get("ms_level", None)
-    #     return v
+        Returns:
+            TYPE: Description
+        """
+        v = self.get("ms_level", None)
+        return v
 
 
 def write_mzml(
@@ -424,9 +429,6 @@ def write_scans(
                                 },
                                 {"total ion current": sum(prod.i)},
                             ],
-                            # TOFIX adding precursor information makes psims crash
-                            # Include precursor information
-                            # precursor_information=prec_info
                             precursor_information={
                                 "mz": prod.precursor_mz,
                                 "intensity": prod.precursor_i,
