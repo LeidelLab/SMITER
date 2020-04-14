@@ -61,6 +61,7 @@ class AbstractNoiseInjector(ABC):
 
 class TestNoiseInjector(AbstractNoiseInjector):
     def __init__(self, *args, **kwargs):
+        # np.random.seed(1312)
         print(easter_egg)
         self.args = args
         self.kwargs = kwargs
@@ -90,6 +91,7 @@ class TestNoiseInjector(AbstractNoiseInjector):
         """
         mz_noise = self._generate_mz_noise(scan, *args, **kwargs)
         intensity_noise = self._generate_intensity_noise(scan, *args, **kwargs)
+        # breakpoint()
         scan.mz += mz_noise
         scan.i += intensity_noise
         return scan
@@ -116,12 +118,14 @@ class TestNoiseInjector(AbstractNoiseInjector):
             *args: Description
             **kwargs: Description
         """
-        noise = [0 for i in range(len(scan.mz))]
+        ppm_offset = kwargs.get("ppm_offset", 0)
+        ppm_var = kwargs.get("ppm_var", 1)
+        noise_level = np.random.normal(ppm_offset * 5e-6, ppm_var * 5e-6, len(scan.mz))
+        noise = scan.mz * noise_level
+        print(noise)
         return noise
 
-    def _generate_intensity_noise(
-        self, scan: Scan, *args, **kwargs
-    ):
+    def _generate_intensity_noise(self, scan: Scan, *args, **kwargs):
         """Generate intensity noise.
 
         Args:
@@ -129,11 +133,6 @@ class TestNoiseInjector(AbstractNoiseInjector):
             *args: Description
             **kwargs: Description
         """
-        np.random.seed(1312)
-        noise = np.random.normal(
-            max(scan.i) * kwargs.get("max_noise_level", -0.05),
-            max(scan.i) * kwargs.get("max_noise_level", 0.05),
-            len(scan.i)
-        )
+        noise = np.random.normal(np.array([0, 0, 0]), np.array(scan.i) * kwargs.get('variance', 0.02), len(scan.i))
         # breakpoint()
         return noise

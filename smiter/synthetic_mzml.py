@@ -33,7 +33,7 @@ class Scan(dict):
     @mz.setter
     def mz(self, mz):
         """Summary."""
-        self['mz'] = mz
+        self["mz"] = mz
 
     @property
     def i(self):
