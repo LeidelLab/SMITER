@@ -11,7 +11,7 @@ from smiter.fragmentation_functions import (
     NucleosideFragmentor,
     PeptideFragmentor,
 )
-from smiter.noise_functions import GaussNoiseInjector, UniformformNoiseInjector
+from smiter.noise_functions import GaussNoiseInjector, UniformNoiseInjector
 from smiter.synthetic_mzml import write_mzml
 
 
@@ -24,7 +24,7 @@ class TestFragmentor(AbstractFragmentor):
 
 
 fragmentor = TestFragmentor()
-noise_injector = GaussNoiseInjector(variance=0.5)
+noise_injector = GaussNoiseInjector(variance=0.05)
 
 
 def test_write_mzml():
@@ -228,7 +228,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     mzml_params = {
         "gradient_length": 45,
     }
-    noise_injector = GaussNoiseInjector(variance=0.5)
+    noise_injector = GaussNoiseInjector(variance=0.0)
     # noise_injector = UniformformNoiseInjector()
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
@@ -274,6 +274,7 @@ def test_write_inosine_proper_fragments_mzml():
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
             "peak_params": {"sigma": 3},  # 10% of peak width,
+            "peak_scaling_factor": 1e6
         },
     }
     mzml_params = {
