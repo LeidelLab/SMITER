@@ -252,10 +252,6 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
             if len(ino_i) > 0:
                 ino_intensities.append(ino_i[0])
                 ino_rt.append(spec.scan_time[0])
-    import matplotlib.pyplot as plt
-    plt.plot(ino_rt, ino_intensities)
-    plt.plot(adeno_rt, adeno_intensities)
-    plt.savefig('/tmp/test.png')
     # assert rt max diff is about 15
     m_i = np.argmax(ino_intensities)
     m_a = np.argmax(adeno_intensities)
