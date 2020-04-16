@@ -10,7 +10,7 @@ from smiter.synthetic_mzml import Scan
 
 # make it a test class
 # integration test, test GaussNoiseInjector methods by themselves!
-def test_gauss_intensity_noise_ms1():
+def test_GaussNoiseInjector_intensity_noise_ms1():
     i_array = np.array([1e6, 2e6, 3e6], dtype="float32")
     scan = Scan(
         {
@@ -28,7 +28,7 @@ def test_gauss_intensity_noise_ms1():
 
 # make it a test class
 # integration test, test GaussNoiseInjector methods by themselves!
-def test_gauss_intensity_noise_ms2():
+def test_GaussNoiseInjector_intensity_noise_ms2():
     i_array = np.array([1e6, 2e6, 3e6], dtype="float32")
     scan = Scan(
         {
@@ -53,7 +53,7 @@ def test_GaussNoiseInjector_generate_intensity_noise():
     )
     noise_injector = GaussNoiseInjector()
     noise = noise_injector._generate_intensity_noise(scan)
-    assert (abs(noise) < i_array * 0.05).all()
+    assert (abs(noise) < i_array * 0.2).all()
 
 
 def test_GaussNoiseInjector_generate_mz_noise():
@@ -155,7 +155,7 @@ def test_UniformNoiseInjector_generate_mz_noise():
     assert (abs(noise) < scan.mz * 5e-6).all()
 
 
-def test_gauss_mz_noise_ms1():
+def test_UniformNoiseInjector_mz_noise_ms1():
     i_array = np.array([1e6, 2e6, 3e6], dtype="float32")
     scan = Scan(
         {
