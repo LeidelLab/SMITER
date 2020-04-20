@@ -10,6 +10,7 @@ import numpy as np
 import pyqms
 from peptide_fragmentor import PeptideFragment0r
 
+import smiter
 from smiter.ext.nucleoside_fragment_kb import (
     KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
 )

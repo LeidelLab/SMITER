@@ -7,8 +7,11 @@ import pyqms
 import scipy as sci
 from psims.mzml import MzMLWriter
 
+import smiter
 from smiter.fragmentation_functions import AbstractFragmentor
 from smiter.lib import calc_mz, check_mzml_params, check_peak_properties
+from smiter.lib import calc_mz
+from smiter.noise_functions import AbstractNoiseInjector
 from smiter.peak_distribution import distributions
 
 
@@ -30,16 +33,21 @@ class Scan(dict):
         v = self.get("mz", None)
         return v
 
+    @mz.setter
+    def mz(self, mz):
+        """Summary."""
+        self["mz"] = mz
+
     @property
     def i(self):
         """Summary."""
         v = self.get("i", None)
         return v
 
-    # @i.setter
-    # def i(self, i):
-    #     """Summary."""
-    #     self["i"] = i
+    @i.setter
+    def i(self, i):
+        """Summary."""
+        self["i"] = i
 
     @property
     def id(self):
@@ -77,22 +85,22 @@ class Scan(dict):
         v = self.get("rt", None)
         return v
 
-    # @property
-    # def ms_level(self):
-    #     """Summary.
+    @property
+    def ms_level(self):
+        """Summary.
 
-    #     Returns:
-    #         TYPE: Description
-    #     """
-    #     v = self.get("ms_level", None)
-    #     return v
+        Returns:
+            TYPE: Description
+        """
+        v = self.get("ms_level", None)
+        return v
 
 
 def write_mzml(
     file: Union[str, io.TextIOWrapper],
     peak_properties: Dict[str, dict],
-    # molecules: List[str],
     fragmentor: AbstractFragmentor,
+    noise_injector: AbstractNoiseInjector,
     mzml_params: Dict[str, Union[int, float, str]],
 ) -> str:
     """Write mzML file with chromatographic peaks and fragment spectra for the given molecules.
@@ -118,8 +126,9 @@ def write_mzml(
         peak_properties, trivial_names=trivial_names
     )
     # if len(isotopologue_lib) > 0:
+    # breakpoint()
     scans, scan_dict = generate_scans(
-        isotopologue_lib, peak_properties, fragmentor, mzml_params
+        isotopologue_lib, peak_properties, fragmentor, noise_injector, mzml_params
     )
     # else:
     # scans, scan_dict = [], {}
@@ -186,6 +195,7 @@ def generate_scans(
     isotopologue_lib: dict,
     peak_properties: dict,
     fragmentor: AbstractFragmentor,
+    noise_injector: AbstractNoiseInjector,
     mzml_params: dict,
 ):
     """Summary.
@@ -196,6 +206,7 @@ def generate_scans(
         fragmentation_function (A): Description
         mzml_params (TYPE): Description
     """
+    # breakpoint()
     gradient_length = mzml_params["gradient_length"]
     ms_rt_diff = mzml_params.get("ms_rt_diff", 0.03)
 
@@ -246,7 +257,11 @@ def generate_scans(
             mz, inten = zip(*scan_peaks)
         else:
             mz, inten = [], []
-        s = Scan({"mz": np.array(mz), "i": np.array(inten), "id": i, "rt": t,})
+        s = Scan(
+            {"mz": np.array(mz), "i": np.array(inten), "id": i, "rt": t, "ms_level": 1}
+        )
+        # add noise
+        s = noise_injector.inject_noise(s)
         prec_scan_id = i
         i += 1
         scans.append((s, []))
@@ -271,6 +286,7 @@ def generate_scans(
                         "precursor_i": 0,
                         "precursor_charge": 1,
                         "precursor_scan_id": prec_scan_id,
+                        "ms_level": 2,
                     }
                 )
                 t += ms_rt_diff
@@ -424,9 +440,6 @@ def write_scans(
                                 },
                                 {"total ion current": sum(prod.i)},
                             ],
-                            # TOFIX adding precursor information makes psims crash
-                            # Include precursor information
-                            # precursor_information=prec_info
                             precursor_information={
                                 "mz": prod.precursor_mz,
                                 "intensity": prod.precursor_i,
