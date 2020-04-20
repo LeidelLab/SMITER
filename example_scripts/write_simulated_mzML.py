@@ -22,7 +22,7 @@ def main():
     mzml_params = {"gradient_length": 30, "ms_rt_diff": 0.01}
     file = "inosine.mzML"
     fragmentor = NucleosideFragmentor()
-    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, mzml_params)
 
 
 if __name__ == "__main__":
