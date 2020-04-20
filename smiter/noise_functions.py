@@ -115,7 +115,11 @@ class GaussNoiseInjector(AbstractNoiseInjector):
         scan.mz += mz_noise
         scan.i += intensity_noise
         scan.i[scan.i < 0] = 0
-        # scan.mz[scan.mz < 0] = 0
+        # remove some mz values
+        dropout = kwargs.get('dropout', 0.1)
+        dropout_mask = [False if c < dropout else True for c in np.random.random(len(scan.mz))]
+        scan.mz = scan.mz[dropout_mask]
+        scan.i = scan.i[dropout_mask]
         return scan
 
     def _generate_mz_noise(self, scan, *args, **kwargs):
@@ -201,13 +205,15 @@ class UniformNoiseInjector(AbstractNoiseInjector):
         """
         mz_noise = self._generate_mz_noise(scan, *args, **kwargs)
         intensity_noise = self._generate_intensity_noise(scan, *args, **kwargs)
-        print(intensity_noise)
         scan.mz += mz_noise
-        # breakpoint()
         scan.i += intensity_noise
-
         scan.i[scan.i < 0] = 0
         # scan.mz[scan.mz < 0] = 0
+        # breakpoint()
+        dropout = kwargs.get('dropout', 0.1)
+        dropout_mask = [False if c < dropout else True for c in np.random.random(len(scan.mz))]
+        scan.mz = scan.mz[dropout_mask]
+        scan.i = scan.i[dropout_mask]
         return scan
 
     def _generate_mz_noise(self, scan, *args, **kwargs):
