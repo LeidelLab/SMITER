@@ -8,6 +8,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pyqms
+from loguru import logger
 
 import smiter
 from smiter.lib import calc_mz
@@ -65,7 +66,7 @@ class AbstractNoiseInjector(ABC):
 class GaussNoiseInjector(AbstractNoiseInjector):
     def __init__(self, *args, **kwargs):
         # np.random.seed(1312)
-        print(easter_egg)
+        logger.info("Initialize GaussNoiseInjector")
         self.args = args
         self.kwargs = kwargs
 
@@ -116,8 +117,10 @@ class GaussNoiseInjector(AbstractNoiseInjector):
         scan.i += intensity_noise
         scan.i[scan.i < 0] = 0
         # remove some mz values
-        dropout = kwargs.get('dropout', 0.1)
-        dropout_mask = [False if c < dropout else True for c in np.random.random(len(scan.mz))]
+        dropout = kwargs.get("dropout", 0.1)
+        dropout_mask = [
+            False if c < dropout else True for c in np.random.random(len(scan.mz))
+        ]
         scan.mz = scan.mz[dropout_mask]
         scan.i = scan.i[dropout_mask]
         return scan
@@ -158,7 +161,8 @@ class GaussNoiseInjector(AbstractNoiseInjector):
 class UniformNoiseInjector(AbstractNoiseInjector):
     def __init__(self, *args, **kwargs):
         # np.random.seed(1312)
-        print(easter_egg)
+        logger.info("Initialize UniformNoiseInjector")
+        # print(easter_egg)
         self.args = args
         self.kwargs = kwargs
 
@@ -210,8 +214,10 @@ class UniformNoiseInjector(AbstractNoiseInjector):
         scan.i[scan.i < 0] = 0
         # scan.mz[scan.mz < 0] = 0
         # breakpoint()
-        dropout = kwargs.get('dropout', 0.1)
-        dropout_mask = [False if c < dropout else True for c in np.random.random(len(scan.mz))]
+        dropout = kwargs.get("dropout", 0.1)
+        dropout_mask = [
+            False if c < dropout else True for c in np.random.random(len(scan.mz))
+        ]
         scan.mz = scan.mz[dropout_mask]
         scan.i = scan.i[dropout_mask]
         return scan
@@ -227,8 +233,8 @@ class UniformNoiseInjector(AbstractNoiseInjector):
         # noise_level = np.random.normal(ppm_offset * 5e-6, ppm_var * 5e-6, len(scan.mz))
         # get scaling from kwargs
         noise = np.random.uniform(
-            (scan.mz * kwargs.get('ppm_noise', 5e-6)) * -1,
-            scan.mz * kwargs.get('ppm_noise', 5e-6),
+            (scan.mz * kwargs.get("ppm_noise", 5e-6)) * -1,
+            scan.mz * kwargs.get("ppm_noise", 5e-6),
         )
         # noise = scan.mz * noise_level
         return noise
@@ -243,7 +249,7 @@ class UniformNoiseInjector(AbstractNoiseInjector):
         """
         # get scaling from kwargs
         noise = np.random.uniform(
-            (scan.i * kwargs.get('intensity_noise', 0.2)) * -1,
-            scan.i * kwargs.get('intensity_noise', 0.2),
+            (scan.i * kwargs.get("intensity_noise", 0.2)) * -1,
+            scan.i * kwargs.get("intensity_noise", 0.2),
         )
         return noise
