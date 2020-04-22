@@ -88,7 +88,7 @@ def csv_to_peak_properties(csv_file):
 
 def peak_properties_to_csv(peak_properties, csv_file):
     if not isinstance(csv_file, TextIOWrapper):
-        csv_file = open(csv_file, 'w')
+        csv_file = open(csv_file, "w")
     csv_filename = csv_file.name
     fieldnames = [
         "chemical_formula",
@@ -110,7 +110,10 @@ def peak_properties_to_csv(peak_properties, csv_file):
             "scan_start_time": peak_properties[cc]["scan_start_time"],
             "peak_function": peak_properties[cc]["peak_function"],
             "peak_params": ",".join(
-                [f"{key}={val}" for key, val in peak_properties[cc]["peak_params"].items()]
+                [
+                    f"{key}={val}"
+                    for key, val in peak_properties[cc]["peak_params"].items()
+                ]
             ),
             "peak_scaling_factor": peak_properties[cc]["peak_scaling_factor"],
             "peak_width": peak_properties[cc]["peak_width"],

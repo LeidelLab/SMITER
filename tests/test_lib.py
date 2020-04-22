@@ -1,7 +1,7 @@
 """Summary.
 """
-import os
 import csv
+import os
 from tempfile import NamedTemporaryFile
 
 import pytest
@@ -114,7 +114,7 @@ def test_peak_properties_to_csv():
             "peak_width": 30,
         },
     }
-    csv_file = 'out.csv'
+    csv_file = "out.csv"
     fname = peak_properties_to_csv(peak_properties, csv_file)
     assert fname == csv_file
     with open(csv_file) as fout:
@@ -122,20 +122,20 @@ def test_peak_properties_to_csv():
         lines = [l for l in reader]
     print(lines)
 
-    assert lines[0]['chemical_formula'] == '+C(10)H(15)N(3)O(5)'
-    assert lines[0]['scan_start_time'] == '10.0'
-    assert lines[0]['peak_function'] == 'gauss'
-    assert lines[0]['peak_params'] == 'sigma=2'
-    assert lines[0]['peak_scaling_factor'] == '1000000.0'
-    assert lines[0]['peak_width'] == '30'
+    assert lines[0]["chemical_formula"] == "+C(10)H(15)N(3)O(5)"
+    assert lines[0]["scan_start_time"] == "10.0"
+    assert lines[0]["peak_function"] == "gauss"
+    assert lines[0]["peak_params"] == "sigma=2"
+    assert lines[0]["peak_scaling_factor"] == "1000000.0"
+    assert lines[0]["peak_width"] == "30"
     # default
-    assert lines[0]['charge'] == '2'
+    assert lines[0]["charge"] == "2"
 
-    assert lines[1]['chemical_formula'] == '+C(12)H(16)N(2)O(8)'
-    assert lines[1]['scan_start_time'] == '12.0'
-    assert lines[1]['peak_function'] == 'gauss'
-    assert lines[1]['peak_params'] == 'sigma=2'
-    assert lines[1]['peak_scaling_factor'] == '2000000.0'
-    assert lines[1]['peak_width'] == '30'
+    assert lines[1]["chemical_formula"] == "+C(12)H(16)N(2)O(8)"
+    assert lines[1]["scan_start_time"] == "12.0"
+    assert lines[1]["peak_function"] == "gauss"
+    assert lines[1]["peak_params"] == "sigma=2"
+    assert lines[1]["peak_scaling_factor"] == "2000000.0"
+    assert lines[1]["peak_width"] == "30"
     # default
-    assert lines[0]['charge'] == '2'
+    assert lines[0]["charge"] == "2"
