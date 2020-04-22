@@ -70,10 +70,6 @@ def test_check_peak_properties_missing_required():
         peak_props = check_peak_properties(peak_props)
 
 
-def test_peak_properties_to_csv():
-    pass
-
-
 def test_csv_to_peak_properties():
     csv_file = os.path.join(os.path.dirname(__file__), "data", "molecules_test.csv")
     peak_properties = csv_to_peak_properties(csv_file)
