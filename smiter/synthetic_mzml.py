@@ -293,8 +293,10 @@ def generate_scans(
                         "precursor_i": mol_monoisotopic[mol]["i"],
                         "precursor_charge": 1,
                         "precursor_scan_id": prec_scan_id,
+                        "ms_level": 2,
                     }
                 )
+                ms2_scan = noise_injector.inject_noise(ms2_scan)
                 t += ms_rt_diff
                 if t > gradient_length:
                     break
