@@ -162,7 +162,6 @@ class UniformNoiseInjector(AbstractNoiseInjector):
     def __init__(self, *args, **kwargs):
         # np.random.seed(1312)
         logger.info("Initialize UniformNoiseInjector")
-        # print(easter_egg)
         self.args = args
         self.kwargs = kwargs
 
