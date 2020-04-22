@@ -8,6 +8,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pyqms
+from loguru import logger
 from peptide_fragmentor import PeptideFragment0r
 
 import smiter
@@ -65,6 +66,7 @@ class NucleosideFragmentor(AbstractFragmentor):
 
     def __init__(self, nucleotide_fragment_kb: Dict[str, dict] = None):
         """Summary."""
+        logger.info("Initialize NucleosideFragmentor")
         if nucleotide_fragment_kb is None:
             nucleoside_fragment_kb = pyrnams_nucleoside_fragment_kb
 

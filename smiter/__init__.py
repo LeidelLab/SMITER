@@ -4,4 +4,22 @@ __author__ = """Manuel Kösters"""
 __email__ = "manuel.koesters@dcb.unibe.ch"
 __version__ = "0.1.0"
 
+import os
+import sys
+import tempfile
+
+from loguru import logger
+
 import smiter.synthetic_mzml
+
+config = {
+    "handlers": [
+        {"sink": sys.stdout,},
+        {
+            "sink": os.path.join(tempfile.gettempdir(), "smiter.log"),
+            "compression": "gz",
+            "rotation": "100 MB",
+        },
+    ],
+}
+logger.configure(**config)

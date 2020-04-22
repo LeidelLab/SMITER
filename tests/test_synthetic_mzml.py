@@ -113,7 +113,7 @@ def test_write_mzml_get_TIC():
     mzml_params = {
         "gradient_length": 30,
     }
-    noise_injector = GaussNoiseInjector(variance=0.)
+    noise_injector = GaussNoiseInjector(variance=0.0)
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     assert reader.get_spectrum_count() == 999
@@ -270,7 +270,7 @@ def test_write_inosine_proper_fragments_mzml():
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
             "peak_params": {"sigma": 3},  # 10% of peak width,
-            "peak_scaling_factor": 1e6
+            "peak_scaling_factor": 1e6,
         },
     }
     mzml_params = {
