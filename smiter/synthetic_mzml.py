@@ -295,6 +295,7 @@ def generate_scans(
                         "precursor_scan_id": prec_scan_id,
                     }
                 )
+                ms2_scan = noise_injector.inject_noise(ms2_scan)
                 t += ms_rt_diff
                 if t > gradient_length:
                     break
