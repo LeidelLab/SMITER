@@ -95,10 +95,10 @@ def peak_properties_to_csv(peak_properties, csv_file):
         "trivial_name",
         "charge",
         "scan_start_time",
+        "peak_width",
+        "peak_scaling_factor",
         "peak_function",
         "peak_params",
-        "peak_scaling_factor",
-        "peak_width",
     ]
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
     writer.writeheader()
@@ -115,7 +115,7 @@ def peak_properties_to_csv(peak_properties, csv_file):
                     for key, val in peak_properties[cc]["peak_params"].items()
                 ]
             ),
-            "peak_scaling_factor": peak_properties[cc]["peak_scaling_factor"],
+            "peak_scaling_factor": peak_properties[cc].get("peak_scaling_factor", 1e3),
             "peak_width": peak_properties[cc]["peak_width"],
         }
         writer.writerow(line)
