@@ -8,6 +8,7 @@ import numpy as np
 import pymzml
 
 from smiter.fragmentation_functions import AbstractFragmentor, NucleosideFragmentor
+from smiter.noise_functions import UniformNoiseInjector
 from smiter.synthetic_mzml import write_mzml
 
 
@@ -38,8 +39,9 @@ def main(file_path):
         "gradient_length": 45,
     }
     fragmentor = NucleosideFragmentor()
+    noise_injector= UniformNoiseInjector()
     with open(file_path, "wb") as fin:
-        mzml_path = write_mzml(fin, peak_props, fragmentor, mzml_params)
+        mzml_path = write_mzml(fin, peak_props, fragmentor, noise_injector, mzml_params)
 
     reader = pymzml.run.Reader(file_path)
 
