@@ -14,7 +14,7 @@ import smiter.synthetic_mzml
 
 config = {
     "handlers": [
-        {"sink": sys.stdout,},
+        {"sink": sys.stdout, "level": "DEBUG"},
         {
             "sink": os.path.join(tempfile.gettempdir(), "smiter.log"),
             "compression": "gz",
