@@ -4,6 +4,7 @@ import numpy as np
 import pymzml
 import pytest
 from scipy.stats import kstest, normaltest
+from scipy.signal import find_peaks
 
 import smiter
 from smiter.fragmentation_functions import (
@@ -323,7 +324,6 @@ def test_write_inosine_proper_fragments_mzml():
     for frag_list in ino_fragments:
         print(frag_list)
         assert len(frag_list) == len(expected_frags)
-        # breakpoint()
         sorted_frags = np.sort(frag_list)
         assert abs(sorted_frags - expected_frags) < 0.001
 
@@ -364,3 +364,64 @@ def test_write_peptide_gauss_mzml():
                 intensities.append(sum(spec.i))
     _, p = normaltest(intensities)
     # assert p < 5e-4
+
+
+def test_write_2_mols_same_cc():
+    file = NamedTemporaryFile("wb")
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 0.5 * 1e6,
+        },
+        "pseudouridine": {
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "pseudouridine",
+            "charge": 2,
+            "scan_start_time": 15,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1e6,
+        },
+    }
+    mzml_params = {
+        "gradient_length": 45,
+        "min_intensity": 10,
+    }
+    mzml_params = {
+        "gradient_length": 45,
+    }
+    fragmentor = NucleosideFragmentor()
+    noise_injector = GaussNoiseInjector(variance=0.0)
+    mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
+    reader = pymzml.run.Reader(mzml_path)
+    # assert reader.get_spectrum_count() == 1499
+    intensities = []
+    for spec in reader:
+        if spec.ms_level == 1:
+            if len(spec.i) > 0:
+                intensities.append(sum(spec.i))
+    peaks, _ = find_peaks(intensities)
+    assert len(peaks) == 2
+
+
+def test_rescale_intensity():
+    pass
+
+
+def test_generate_scans():
+    pass
+
+
+def test_generate_molecule_isotopologue_lib():
+    pass
+
+
+def test_write_scans():
+    pass
