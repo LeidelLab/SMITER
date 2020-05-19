@@ -54,7 +54,8 @@ def test_write_empty_mzml():
 def test_write_inosine_flat_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
@@ -74,7 +75,8 @@ def test_write_inosine_flat_mzml():
 def test_write_inosine_gauss_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
@@ -92,7 +94,8 @@ def test_write_inosine_gauss_mzml():
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
-            intensities.append(spec.i[0])
+            if len(spec.i) > 0:
+                intensities.append(spec.i[0])
     _, p = normaltest(intensities)
     print(intensities)
     # assert p < 5e-4
@@ -101,7 +104,8 @@ def test_write_inosine_gauss_mzml():
 def test_write_mzml_get_TIC():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
@@ -129,7 +133,8 @@ def test_write_mzml_get_TIC():
 def test_write_inosine_gamma_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "trivial_name": "inosine",
             "charge": 2,
             "scan_start_time": 0,
@@ -147,7 +152,8 @@ def test_write_inosine_gamma_mzml():
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
-            intensities.append(spec.i[0])
+            if len(spec.i) > 0:
+                intensities.append(spec.i[0])
     ## what is a reasonable p-value cutoff here?
     # assert t.pvalue < 1e-100
 
@@ -155,7 +161,8 @@ def test_write_inosine_gamma_mzml():
 def test_write_inosine_adenosine_gauss_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "charge": 2,
             "trivial_name": "inosine",
             "scan_start_time": 0,
@@ -164,6 +171,7 @@ def test_write_inosine_adenosine_gauss_mzml():
             "peak_params": {"sigma": 3},  # 10% of peak width,
         },
         "+C(10)H(13)N(5)O(4)": {
+            "chemical_formula": "+C(10)H(13)N(5)O(4)",
             "trivial_name": "adenosine",
             "charge": 2,
             "scan_start_time": 0,
@@ -206,7 +214,8 @@ def test_write_inosine_adenosine_gauss_mzml():
 def test_write_inosine_adenosine_gauss_shift_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "charge": 2,
             "trivial_name": "inosine",
             "scan_start_time": 0,
@@ -216,6 +225,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
             "peak_scaling_factor": 1e6,
         },
         "+C(10)H(13)N(5)O(4)": {
+            "chemical_formula": "+C(10)H(13)N(5)O(4)",
             "trivial_name": "adenosine",
             "charge": 2,
             "scan_start_time": 15,
@@ -263,7 +273,8 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
 def test_write_inosine_proper_fragments_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "charge": 2,
             "trivial_name": "inosine",
             "scan_start_time": 0,
@@ -321,6 +332,7 @@ def test_write_peptide_gauss_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
         "ELVISLIVES": {
+            "chemical_formula": "ELVISLIVES",
             "trivial_name": "ELVISLIVES",
             "charge": 2,
             "scan_start_time": 0,
@@ -331,6 +343,7 @@ def test_write_peptide_gauss_mzml():
         "ELVISLIVSE": {
             "charge": 2,
             "trivial_name": "ELVISLIVSE",
+            "chemical_formula": "ELVISLIVSE",
             "scan_start_time": 15,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
@@ -347,6 +360,7 @@ def test_write_peptide_gauss_mzml():
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
-            intensities.append(sum(spec.i))
+            if len(spec.i) > 0:
+                intensities.append(sum(spec.i))
     _, p = normaltest(intensities)
     # assert p < 5e-4

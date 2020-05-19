@@ -8,4 +8,7 @@ default_peak_properties = {
     # "peak_function": "gauss",
 }
 
-default_mzml_params = {"gradient_length": None}
+default_mzml_params = {
+    "gradient_length": None,
+    "min_intensity": 100,
+}
