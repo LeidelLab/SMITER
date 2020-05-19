@@ -141,6 +141,7 @@ def test_write_inosine_gamma_mzml():
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gamma",
+            "peak_scaling_factor": 1e6,
             "peak_params": {"a": 3, "scale": 20},  # 10% of peak width,
         }
     }
