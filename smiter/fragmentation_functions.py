@@ -4,9 +4,10 @@ Upon calling the callabe, a list/np.array of mz and intensities should be return
 Arguments should be passed via *args and **kwargs
 """
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
+import pandas as pd
 import pyqms
 from loguru import logger
 from peptide_fragmentor import PeptideFragment0r
@@ -49,15 +50,22 @@ class PeptideFragmentor(AbstractFragmentor):
         self.args = args
         self.kwargs = kwargs
 
-    def fragment(self, entity):
+    def fragment(self, entities):
         """Summary.
 
         Args:
             entity (TYPE): Description
         """
-        results_table = PeptideFragment0r(entity, **self.kwargs).df
-        i = np.array([100 for i in range(len(results_table))])
-        mz_i = np.stack((results_table["mz"], i), axis=1)
+        # breakpoint()
+        if isinstance(entities, str):
+            entities = [entities]
+        frames = []
+        for entity in entities:
+            results_table = PeptideFragment0r(entity, **self.kwargs).df
+            frames.append(results_table)
+        final_table = pd.concat(frames)
+        i = np.array([100 for i in range(len(final_table))])
+        mz_i = np.stack((final_table["mz"], i), axis=1)
         return mz_i
 
 
@@ -82,11 +90,20 @@ class NucleosideFragmentor(AbstractFragmentor):
                 nuc_to_fragments[nuc_name].append(calc_mz(m, 1))
         self.nuc_to_fragments = nuc_to_fragments
 
-    def fragment(self, entity):
+    def fragment(self, entities: Union[list, str]):
         """Summary.
 
         Args:
             entity (TYPE): Description
         """
-        masses = self.nuc_to_fragments[entity]
-        return np.array([(mass, 100) for mass in masses])
+        if isinstance(entities, str):
+            entities = [entities]
+        m = []
+        for entity in entities:
+            masses = self.nuc_to_fragments[entity]
+            m.extend(masses)
+            # logger.debug(masses)
+            # should overlapping peaks be divided into two very similar ones?
+        m = sorted(list(set(m)))
+        # logger.debug(m)
+        return np.array([(mass, 100) for mass in m])

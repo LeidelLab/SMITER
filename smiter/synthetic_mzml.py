@@ -212,6 +212,7 @@ def generate_scans(
         mzml_params (TYPE): Description
     """
     logger.info("Start generating scans")
+    # breakpoint()
     t0 = time.time()
     gradient_length = mzml_params["gradient_length"]
     ms_rt_diff = mzml_params.get("ms_rt_diff", 0.03)
@@ -275,9 +276,26 @@ def generate_scans(
             break
 
         while len(mol_i) < 10:
-            mol_i.append((None, 0))
-        for mol, _intensity in sorted(mol_i, key=lambda x: x[1], reverse=True)[:10]:
+            mol_i.append((None, -100, 0))
+        for mol, _mz, _intensity in sorted(mol_i, key=lambda x: x[2], reverse=True)[
+            :10
+        ]:
             mol_plus = f"{mol}"
+            all_mols_in_mz_and_rt_window = [
+                mol
+                for mol in isotopologue_lib
+                if (
+                    abs(isotopologue_lib[mol]["mz"][0] - _mz)
+                    < mzml_params["isolation_window_width"]
+                )
+                and (
+                    peak_properties[mol]["scan_start_time"]
+                    < t
+                    < peak_properties[mol]["scan_start_time"]
+                    + peak_properties[mol]["peak_width"]
+                )
+            ]
+            # logger.debug(all_mols_in_mz_and_rt_window)
             if mol is None:
                 # add empty scan
                 ms2_scan = Scan(
@@ -303,8 +321,12 @@ def generate_scans(
                 )
                 >= t
             ):
-                mol_name = peak_properties[mol_plus]["trivial_name"]
-                peaks = fragmentor.fragment(mol_name)
+                all_mols_in_mz_and_rt_window = [
+                    peak_properties[f"{mol}"]["trivial_name"]
+                    for mol in all_mols_in_mz_and_rt_window
+                ]
+                # fragment all molecules in isolation and rt window
+                peaks = fragmentor.fragment(all_mols_in_mz_and_rt_window)
                 frag_mz = peaks[:, 0]
                 frag_i = peaks[:, 1]
                 ms2_scan = Scan(
@@ -398,7 +420,7 @@ def write_scans(
     """
     t0 = time.time()
     logger.info("Start writing Scans")
-    logger.info("Write {0} MS1 and {1} MS scans".format(len(scans), len(scans) * 10))
+    logger.info("Write {0} MS1 and {1} MS2 scans".format(len(scans), len(scans) * 10))
     id_format_str = "controllerType=0 controllerNumber=1 scan={i}"
     with MzMLWriter(file) as writer:
         # Add default controlled vocabularies

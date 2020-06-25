@@ -17,5 +17,5 @@ def test_fragment_nucleotide():
     """Summary."""
     fragger = NucleosideFragmentor()
     peaks = fragger.fragment("adenosine")
-    expected_mzs = np.array([136.0617716478, 119.03522254717])
+    expected_mzs = np.array([119.03522254717, 136.0617716478])
     assert ((peaks[:, 0] - expected_mzs) < 0.001).all()
