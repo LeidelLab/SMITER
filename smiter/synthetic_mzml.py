@@ -250,7 +250,8 @@ def generate_scans(
                 mz = mz[mask]
                 mol_peaks = list(zip(mz, intensity))
                 if len(mol_peaks) > 0:
-                    mol_i.append((mol, sum(intensity)))
+                    # breakpoint()
+                    mol_i.append((mol, mz[0], sum(intensity)))
                     scan_peaks.extend(mol_peaks)
                     mol_scan_dict[mol]["ms1_scans"].append(i)
                     highest_peak = max(mol_peaks, key=lambda x: x[1])
@@ -277,6 +278,8 @@ def generate_scans(
 
         while len(mol_i) < 10:
             mol_i.append((None, -100, 0))
+        # breakpoint()
+        logger.debug(f'mol_i {mol_i}')
         for mol, _mz, _intensity in sorted(mol_i, key=lambda x: x[2], reverse=True)[
             :10
         ]:
