@@ -75,6 +75,7 @@ def csv_to_peak_properties(csv_file):
             cc = line_dict["chemical_formula"]
             peak_properties[cc] = {
                 "trivial_name": line_dict["trivial_name"],
+                "chemical_formula": cc,
                 "charge": line_dict.get("charge", 2),
                 "scan_start_time": float(line_dict["scan_start_time"]),
                 # currently only gaussian peaks from csv
@@ -102,21 +103,26 @@ def peak_properties_to_csv(peak_properties, csv_file):
     ]
     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
     writer.writeheader()
-    for cc, attribs in peak_properties.items():
+    for trivial_name, attribs in peak_properties.items():
         line = {
-            "chemical_formula": cc,
-            "trivial_name": peak_properties[cc].get("trivial_name", ""),
-            "charge": peak_properties[cc].get("charge", 2),
-            "scan_start_time": peak_properties[cc]["scan_start_time"],
-            "peak_function": peak_properties[cc]["peak_function"],
+            "chemical_formula": peak_properties[trivial_name].get(
+                "chemical_formula", ""
+            ),
+            # "trivial_name": peak_properties[cc].get("trivial_name", ""),
+            "trivial_name": trivial_name,
+            "charge": peak_properties[trivial_name].get("charge", 2),
+            "scan_start_time": peak_properties[trivial_name]["scan_start_time"],
+            "peak_function": peak_properties[trivial_name]["peak_function"],
             "peak_params": ",".join(
                 [
                     f"{key}={val}"
-                    for key, val in peak_properties[cc]["peak_params"].items()
+                    for key, val in peak_properties[trivial_name]["peak_params"].items()
                 ]
             ),
-            "peak_scaling_factor": peak_properties[cc].get("peak_scaling_factor", 1e3),
-            "peak_width": peak_properties[cc]["peak_width"],
+            "peak_scaling_factor": peak_properties[trivial_name].get(
+                "peak_scaling_factor", 1e3
+            ),
+            "peak_width": peak_properties[trivial_name]["peak_width"],
         }
         writer.writerow(line)
     csv_file.close()

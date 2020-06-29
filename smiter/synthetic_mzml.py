@@ -1,7 +1,8 @@
 """Main module."""
 import io
-import time
 import pathlib
+import time
+from pprint import pformat
 from typing import Callable, Dict, List, Tuple, Union
 
 import numpy as np
@@ -125,8 +126,11 @@ def write_mzml(
     filename = file if isinstance(file, str) else file.name
     scans = []
     # pass list of all charge states in peak properties
+    # trivial_names = {
+    #     key: value["trivial_name"] for key, value in peak_properties.items()
+    # }
     trivial_names = {
-        key: value["trivial_name"] for key, value in peak_properties.items()
+        val["chemical_formula"]: key for key, val in peak_properties.items()
     }
     # dicts are sorted, language specification since python 3.7+
     isotopologue_lib = generate_molecule_isotopologue_lib(
@@ -235,18 +239,26 @@ def generate_scans(
                 )
                 >= t
             ):
-                # breakpoint()
-                mz = isotopologue_lib[mol]["mz"]
+                mz = np.array(isotopologue_lib[mol]["mz"])
                 intensity = np.array(isotopologue_lib[mol]["i"])
-                intesity = rescale_intensity(
+                intensity = rescale_intensity(
                     intensity, t, mol, peak_properties, isotopologue_lib
                 )
-                mol_i.append((mol, mz[0], sum(intesity)))
+                # logger.debug(intensity < mzml_params['min_intensity'])
+                mask = intensity > mzml_params["min_intensity"]
+                intensity = intensity[mask]
+                mz = mz[mask]
                 mol_peaks = list(zip(mz, intensity))
-                scan_peaks.extend(mol_peaks)
-                mol_scan_dict[mol]["ms1_scans"].append(i)
-                highest_peak = max(mol_peaks, key=lambda x: x[1])
-                mol_monoisotopic[mol] = {"mz": highest_peak[0], "i": highest_peak[1]}
+                if len(mol_peaks) > 0:
+                    # breakpoint()
+                    mol_i.append((mol, mz[0], sum(intensity)))
+                    scan_peaks.extend(mol_peaks)
+                    mol_scan_dict[mol]["ms1_scans"].append(i)
+                    highest_peak = max(mol_peaks, key=lambda x: x[1])
+                    mol_monoisotopic[mol] = {
+                        "mz": highest_peak[0],
+                        "i": highest_peak[1],
+                    }
         scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
         if len(scan_peaks) > 0:
             mz, inten = zip(*scan_peaks)
@@ -266,6 +278,8 @@ def generate_scans(
 
         while len(mol_i) < 10:
             mol_i.append((None, -100, 0))
+        # breakpoint()
+        logger.debug(f'mol_i {mol_i}')
         for mol, _mz, _intensity in sorted(mol_i, key=lambda x: x[2], reverse=True)[
             :10
         ]:
@@ -355,23 +369,43 @@ def generate_molecule_isotopologue_lib(
     Args:
         molecules (TYPE): Description
     """
+    duplicate_formulas: Dict[str, List[str]] = {}
+    for key in peak_properties:
+        duplicate_formulas.setdefault(
+            peak_properties[key]["chemical_formula"], []
+        ).append(key)
     if charges is None:
         charges = [1]
     if len(peak_properties) > 0:
-        molecules = peak_properties.keys()
+        # molecules = peak_properties.keys()
+        molecules = [d["chemical_formula"] for d in peak_properties.values()]
         lib = pyqms.IsotopologueLibrary(
             molecules=molecules,
             charges=charges,
             verbose=False,
             trivial_names=trivial_names,
         )
+        logger.debug("\n" + pformat(lib.lookup["formula to trivial name"]))
         reduced_lib = {}
         for mol in molecules:
             formula = lib.lookup["molecule to formula"][mol]
             data = lib[formula]["env"][(("N", "0.000"),)]
-            reduced_lib[mol] = {"mz": data[1]["mz"], "i": data["relabun"]}
+            for triv in lib.lookup["formula to trivial name"][formula]:
+                reduced_lib[triv] = {"mz": data[1]["mz"], "i": data["relabun"]}
     else:
         reduced_lib = {}
+    logger.debug("\n" + pformat(reduced_lib))
+    logger.debug("\n" + pformat(duplicate_formulas))
+    tmp = {}
+    for mol in reduced_lib:
+        cc = peak_properties[mol]["chemical_formula"]
+        logger.debug(cc)
+        for triv in duplicate_formulas[cc]:
+            if triv not in reduced_lib:
+                tmp[triv] = reduced_lib[mol]
+    reduced_lib.update(tmp)
+    logger.debug("\n" + pformat(reduced_lib))
+    # TODO write test to check if two peak with same mz and different RT appear
     return reduced_lib
 
 

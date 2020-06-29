@@ -95,8 +95,9 @@ def test_csv_to_peak_properties():
 
 def test_peak_properties_to_csv():
     peak_properties = {
-        "+C(10)H(15)N(3)O(5)": {
+        "2′-O-methylcytidine": {
             "trivial_name": "2′-O-methylcytidine",
+            "chemical_formula": "+C(10)H(15)N(3)O(5)",
             "charge": 2,
             "scan_start_time": 10.0,
             "peak_function": "gauss",
@@ -104,8 +105,9 @@ def test_peak_properties_to_csv():
             "peak_scaling_factor": 1000000.0,
             "peak_width": 30,
         },
-        "+C(12)H(16)N(2)O(8)": {
+        "5-methoxycarbonylmethyluridine": {
             "trivial_name": "5-methoxycarbonylmethyluridine",
+            "chemical_formula": "+C(12)H(16)N(2)O(8)",
             "charge": 2,
             "scan_start_time": 12.0,
             "peak_function": "gauss",
