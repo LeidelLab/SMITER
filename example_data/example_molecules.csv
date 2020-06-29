@@ -1,13 +1,11 @@
 chemical_formula,trivial_name,scan_start_time,peak_scaling_factor,
-+C(10)H(15)N(3)O(5),2′-O-methylcytidine, 10, 1e6
-+C(12)H(16)N(2)O(8),5-methoxycarbonylmethyluridine, 12, 2e6
-+C(11)H(14)N(2)O(7)S(1),5-carboxymethyl-2-thiouridine, 13, 2.5e6
-+C(12)H(16)N(2)O(7)S(1),5-methoxycarbonylmethyl-2-thiouridine, 14, 3e6
-+C(15)H(18)N(6)O(7),cyclic N6-threonylcarbamoyladenosine, 16, 4e6
-+C(11)H(15)N(3)O(8),5-carbamoylhydroxymethyluridine, 18, 5e6
-+C(11)H(15)N(5)O(5),1-methylguanosine, 20, 6e6
-+C(12)H(17)N(5)O(5),"N2,N2-dimethylguanosine", 22, 1e6
-+C(12)H(17)N(5)O(4),"1,2′-O-dimethyladenosine", 24, 2e6
-+C(10)H(13)N(5)O(7),spiroiminodihydantoin, 26, 3e6
-+C(17)H(23)N(5)O(7),queuosine, 28, 4e6
-+C(9)H(12)N(2)O(6),pseudouridine, 30, 6e6
++C(10)H(15)N(3)O(5),2′-O-methylcytidine, 0, 1e6
++C(12)H(16)N(2)O(8),5-methoxycarbonylmethyluridine, 4, 1e6
++C(15)H(18)N(6)O(7),cyclic N6-threonylcarbamoyladenosine, 8, 1e6
++C(11)H(15)N(3)O(8),5-carbamoylhydroxymethyluridine, 12, 1e6
++C(11)H(15)N(5)O(5),1-methylguanosine, 16, 1e6
++C(12)H(17)N(5)O(5),"N2,N2-dimethylguanosine", 20, 1e6
++C(12)H(17)N(5)O(4),"1,2′-O-dimethyladenosine", 24, 1e6
++C(10)H(13)N(5)O(7),spiroiminodihydantoin, 28, 1e6
++C(17)H(23)N(5)O(7),queuosine, 32, 1e6
++C(9)H(12)N(2)O(6),pseudouridine, 36, 1e6

@@ -6,7 +6,7 @@ import pymzml
 from pymzml.plot import Factory
 
 from smiter.fragmentation_functions import NucleosideFragmentor
-from smiter.noise_functions import UniformNoiseInjector
+from smiter.noise_functions import UniformNoiseInjector, JamssNoiseInjector
 from smiter.synthetic_mzml import write_mzml
 
 
@@ -18,9 +18,29 @@ def main():
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
-            "peak_function": "gauss",
+            "peak_function": "gauss_tail",
             "peak_params": {"sigma": 3},
+            "peak_scaling_factor": 1e6,
+        },
+        "+C(9)H(12)N(2)O(6)": {
+            "trivial_name": "pseudouridine",
+            "charge": 2,
+            "scan_start_time": 30,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss_tail",
+            "peak_scaling_factor": 2e6,
+            "peak_params": {"sigma": 3},
+        },
+        "+C(10)H(13)N(5)O(7)": {
+            "trivial_name": "spiroiminodihydantoin",
+            "charge": 2,
+            "scan_start_time": 60,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss_tail",
+            "peak_params": {"sigma": 3},
+            "peak_scaling_factor": 3e6,
         }
+
     }
     mzml_params = {
         "gradient_length": 30,
@@ -29,6 +49,11 @@ def main():
 
     fragmentor = NucleosideFragmentor()
     noise_injector = UniformNoiseInjector()
+    noise_injector = UniformNoiseInjector(
+        dropout=0.0, ppm_noise=0, intensity_noise=0
+    )
+    noise_injector = JamssNoiseInjector()
+
 
     file = NamedTemporaryFile("wb")
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)

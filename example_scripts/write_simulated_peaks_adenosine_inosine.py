@@ -9,7 +9,7 @@ import pymzml
 import warnings
 
 from smiter.fragmentation_functions import AbstractFragmentor, NucleosideFragmentor
-from smiter.noise_functions import UniformNoiseInjector
+from smiter.noise_functions import UniformNoiseInjector, JamssNoiseInjector
 from smiter.synthetic_mzml import write_mzml
 
 warnings.simplefilter("ignore")
@@ -45,7 +45,8 @@ def main(file_path):
         "min_intensity": 10,
     }
     fragmentor = NucleosideFragmentor()
-    noise_injector = UniformNoiseInjector()
+    # noise_injector= UniformNoiseInjector()
+    noise_injector = JamssNoiseInjector()
     with open(file_path, "wb") as fin:
         mzml_path = write_mzml(fin, peak_props, fragmentor, noise_injector, mzml_params)
 

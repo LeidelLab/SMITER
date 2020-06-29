@@ -56,12 +56,12 @@ class PeptideFragmentor(AbstractFragmentor):
         Args:
             entity (TYPE): Description
         """
-        # breakpoint()
         if isinstance(entities, str):
             entities = [entities]
         frames = []
         for entity in entities:
             results_table = PeptideFragment0r(entity, **self.kwargs).df
+
             frames.append(results_table)
         final_table = pd.concat(frames)
         i = np.array([100 for i in range(len(final_table))])

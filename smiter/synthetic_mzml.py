@@ -188,6 +188,19 @@ def rescale_intensity(
             a=peak_properties[f"{molecule}"]["peak_params"]["a"],
             scale=peak_properties[f"{molecule}"]["peak_params"]["scale"],
         )
+    elif scale_func == "gauss_tail":
+        logger.debug(
+            f'RT: {rt}\n SCT: {peak_properties[f"{molecule}"]["scan_start_time"]}'
+        )
+        logger.debug(f'Diff: {rt - peak_properties[f"{molecule}"]["scan_start_time"]}')
+        logger.debug(
+            f'0.075 * {rt - peak_properties[f"{molecule}"]["scan_start_time"]} + 2'
+        )
+        dist_scale_factor = distributions[scale_func](
+            rt,
+            mu=mu,
+            sigma=0.12 * (rt - peak_properties[f"{molecule}"]["scan_start_time"]) + 2,
+        )
     elif scale_func is None:
         dist_scale_factor = 1
     i *= dist_scale_factor * peak_properties[f"{molecule}"].get(
@@ -212,7 +225,6 @@ def generate_scans(
         mzml_params (TYPE): Description
     """
     logger.info("Start generating scans")
-    # breakpoint()
     t0 = time.time()
     gradient_length = mzml_params["gradient_length"]
     ms_rt_diff = mzml_params.get("ms_rt_diff", 0.03)

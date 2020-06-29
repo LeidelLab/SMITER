@@ -329,6 +329,7 @@ def test_write_inosine_proper_fragments_mzml():
         assert abs(sorted_frags - expected_frags) < 0.001
 
 
+@pytest.mark.slow()
 def test_write_peptide_gauss_mzml():
     file = NamedTemporaryFile("wb")
     peak_props = {
