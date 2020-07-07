@@ -6,7 +6,7 @@ SMITER
 .. image:: https://img.shields.io/pypi/v/smiter.svg
         :target: https://pypi.python.org/pypi/smiter
 
-.. image:: https://img.shields.io/travis/MKoesters/smiter.svg
+.. image:: https://travis-ci.com/MKoesters/SMITER.svg?token=7Uh1o2G3gUZXxMB2xrqp&branch=dev
         :target: https://travis-ci.com/MKoesters/smiter
 
 .. image:: https://readthedocs.org/projects/smiter/badge/?version=latest

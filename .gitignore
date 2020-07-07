@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # custom
-smiter/ext/nucleoside_fragment_kb.py
+# smiter/ext/nucleoside_fragment_kb.py

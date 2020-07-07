@@ -4,15 +4,17 @@ from tempfile import NamedTemporaryFile
 
 import pymzml
 from pymzml.plot import Factory
-from smiter.synthetic_mzml import write_mzml
+
 from smiter.fragmentation_functions import NucleosideFragmentor
+from smiter.noise_functions import UniformNoiseInjector
+from smiter.synthetic_mzml import write_mzml
 
 
 def main():
-    molecules = ["+C(10)H(12)N(4)O(5)"]
     peak_props = {
-        "+C(10)H(12)N(4)O(5)": {
+        "inosine": {
             "trivial_name": "inosine",
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
             "charge": 2,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -22,12 +24,14 @@ def main():
     }
     mzml_params = {
         "gradient_length": 30,
+        "min_intensity": 1,
     }
 
     fragmentor = NucleosideFragmentor()
+    noise_injector = UniformNoiseInjector()
 
     file = NamedTemporaryFile("wb")
-    mzml_path = write_mzml(file, molecules, fragmentor, peak_props, mzml_params)
+    mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
     tic_tuples = []
     for pos, spec in enumerate(reader):

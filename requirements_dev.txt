@@ -5,10 +5,13 @@ watchdog==0.9.0
 flake8==3.7.8
 tox==3.14.0
 coverage==4.5.4
+codecov
 Sphinx==1.8.5
 twine==1.14.0
 Click==7.0
 pytest==4.6.5
 pytest-runner==5.1
 pydocstyle
+coverage==4.5.4
+matplotlib==3.2.1
 -r requirements.txt

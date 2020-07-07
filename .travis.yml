@@ -1,0 +1,21 @@
+language: python
+python:
+- '3.8'
+sudo: false
+matrix:
+  include:
+  - python: 3.6
+    env: TOXENV=py36
+  - python: 3.7
+    env: TOXENV=py37
+    dist: xenial
+  - python: 3.8
+    env: TOXENV=py38
+    dist: xenial
+  - python: 3.8
+    env: TOXENV=coverage
+install:
+  - pip install tox-travis
+script: tox
+env:
+    - CODECOV_TOKEN="60f88a96-5a0b-439b-81be-5273ee57881b"
