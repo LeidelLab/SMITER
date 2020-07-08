@@ -279,7 +279,7 @@ def generate_scans(
         while len(mol_i) < 10:
             mol_i.append((None, -100, 0))
         # breakpoint()
-        logger.debug(f'mol_i {mol_i}')
+        logger.debug(f"mol_i {mol_i}")
         for mol, _mz, _intensity in sorted(mol_i, key=lambda x: x[2], reverse=True)[
             :10
         ]:

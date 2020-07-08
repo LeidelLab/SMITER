@@ -1,7 +1,7 @@
 """Summary."""
 import numpy as np
-import pytest
 
+import pytest
 import smiter
 from smiter.noise_functions import GaussNoiseInjector, UniformNoiseInjector
 from smiter.synthetic_mzml import Scan
