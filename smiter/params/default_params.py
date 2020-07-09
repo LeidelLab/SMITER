@@ -11,5 +11,5 @@ default_peak_properties = {
 default_mzml_params = {
     "gradient_length": None,
     "min_intensity": 100,
-    "isolation_window_width": 0.5
+    "isolation_window_width": 0.5,
 }

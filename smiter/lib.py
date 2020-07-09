@@ -76,13 +76,13 @@ def csv_to_peak_properties(csv_file):
             peak_properties[cc] = {
                 "trivial_name": line_dict["trivial_name"],
                 "chemical_formula": cc,
-                "charge": line_dict.get("charge", 2),
+                "charge": int(line_dict.get("charge", 2)),
                 "scan_start_time": float(line_dict["scan_start_time"]),
                 # currently only gaussian peaks from csv
                 "peak_function": "gauss",
-                "peak_params": {"sigma": line_dict.get("sigma", 2)},
+                "peak_params": {"sigma": float(line_dict.get("sigma", 2))},
                 "peak_scaling_factor": float(line_dict["peak_scaling_factor"]),
-                "peak_width": line_dict.get("peak_width", 30),
+                "peak_width": float(line_dict.get("peak_width", 30)),
             }
     return peak_properties
 
