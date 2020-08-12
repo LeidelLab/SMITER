@@ -23,9 +23,13 @@ def gauss_dist(x: float, sigma: float = 1, mu: float = 0):
         float: y
     """
     return (
-        1
-        / (sigma * math.sqrt(2 * math.pi))
-        * pow(math.e, (-0.5 * pow(((x - mu) / sigma), 2)))
+        (
+            1
+            / (sigma * math.sqrt(2 * math.pi))
+            * pow(math.e, (-0.5 * pow(((x - mu) / sigma), 2)))
+        )
+        / 0.3989422804014327
+        * sigma
     )
 
 

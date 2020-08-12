@@ -3,9 +3,9 @@
 Upon calling the callabe, a list/np.array of mz and intensities should be returned.
 Arguments should be passed via *args and **kwargs
 """
+import math
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
-import math
 
 import numpy as np
 import pyqms
@@ -284,7 +284,7 @@ class JamssNoiseInjector(AbstractNoiseInjector):
 
     def _ms1_noise(self, scan, *args, **kwargs):
         mz_noise = self._generate_mz_noise(scan, *args, **kwargs)
-        logger.debug(f'MS1 mz noise: {mz_noise}')
+        logger.debug(f"MS1 mz noise: {mz_noise}")
         intensity_noise = self._generate_intensity_noise(scan, *args, **kwargs)
         scan.mz += mz_noise
         scan.i += intensity_noise
@@ -293,14 +293,14 @@ class JamssNoiseInjector(AbstractNoiseInjector):
 
     def _msn_noise(self, scan, *args, **kwargs):
         mz_noise = self._generate_mz_noise(scan, *args, **kwargs)
-        logger.debug(f'MSn mz noise: {mz_noise}')
+        logger.debug(f"MSn mz noise: {mz_noise}")
         intensity_noise = self._generate_intensity_noise(scan, *args, **kwargs)
         scan.mz += mz_noise
         scan.i += intensity_noise
         scan.i[scan.i < 0] = 0
         # scan.mz[scan.mz < 0] = 0
         dropout = kwargs.get("dropout", 0.1)
-        logger.debug(f'Dropout: {dropout}')
+        logger.debug(f"Dropout: {dropout}")
         dropout_mask = [
             False if c < dropout else True for c in np.random.random(len(scan.mz))
         ]

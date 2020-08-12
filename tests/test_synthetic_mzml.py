@@ -414,7 +414,28 @@ def test_write_2_mols_same_cc():
 
 
 def test_rescale_intensity():
-    pass
+    i = 100
+    rt = 15
+    molecule = ""
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 0.5,
+        }
+    }
+    iso_lib = {}
+
+    i_rescaled = smiter.synthetic_mzml.rescale_intensity(
+        i, rt, "uridine", peak_props, iso_lib
+    )
+    # should be max_i @ half peak width, with half peak width = 15 and max_i = 50 (100 * 0.5)
+    assert round(i_rescaled, 2) == 50
 
 
 def test_generate_scans():

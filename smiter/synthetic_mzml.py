@@ -182,6 +182,7 @@ def rescale_intensity(
                 "sigma", peak_properties[f"{molecule}"]["peak_width"] / 10
             ),
         )
+        print(dist_scale_factor)
     elif scale_func == "gamma":
         dist_scale_factor = distributions[scale_func](
             rt,
