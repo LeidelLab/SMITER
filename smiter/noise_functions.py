@@ -17,24 +17,6 @@ from smiter.lib import calc_mz
 # from smiter.synthetic_mzml import Scan
 # import smiter.synthetic_mzml
 
-easter_egg = """
-
-                   .-^-.
-                 .'=^=^='.
-                /=^=^=^=^=\
-
-        .-~-.  :^= HAPPY =^;
-      .'~~*~~'.|^ EASTER! ^|
-     /~~*~~~*~~\^=^=^=^=^=^:
-    :~*~~~*~~~*~;\.-*))`*-,/
-    |~~~*~~~*~~|/*  ((*   *'.
-    :~*~~~*~~~*|   *))  *   *\
-
-     \~~*~~~*~~| *  ((*   *  /
-      `.~~*~~.' \  *))  *  .'
-        `~~~`    '-.((*_.-'
-"""
-
 
 class AbstractNoiseInjector(ABC):
     """Summary."""
