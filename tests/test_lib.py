@@ -5,6 +5,7 @@ import os
 from tempfile import NamedTemporaryFile
 
 import pytest
+
 from smiter.lib import (
     check_mzml_params,
     check_peak_properties,

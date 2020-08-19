@@ -2,10 +2,10 @@ from tempfile import NamedTemporaryFile
 
 import numpy as np
 import pymzml
+import pytest
 from scipy.signal import find_peaks
 from scipy.stats import kstest, normaltest
 
-import pytest
 import smiter
 from smiter.fragmentation_functions import (
     AbstractFragmentor,

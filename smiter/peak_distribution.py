@@ -22,6 +22,8 @@ def gauss_dist(x: float, sigma: float = 1, mu: float = 0):
     Returns:
         float: y
     """
+    # logger.debug(f"Sigma: {sigma}")
+    # print(f'Sigma: {sigma}')
     return (
         (
             1
@@ -33,16 +35,12 @@ def gauss_dist(x: float, sigma: float = 1, mu: float = 0):
     )
 
 
-def gauss_tail(x: float, mu: float, sigma: float) -> float:
+def gauss_tail(x: float, mu: float, sigma: float, scan_start_time: float) -> float:
     h = 1
-    t = 5
-    f = 2
-    # sigma = t * x + f
-    logger.debug(
-        f"Sigma: {sigma}\n"
-        # f"X: {x}\n"
-        # f"mu: {mu}\n"
-    )
+    # should be a parameter
+    t = 0.2
+    f = 0.01
+    sigma = t * (x - scan_start_time) + f  # / (x + 0.00001)
     i = h * math.e ** (-0.5 * ((x - mu) / sigma) ** 2)
     return i
 

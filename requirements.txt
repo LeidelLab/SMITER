@@ -3,5 +3,6 @@ psims==0.1.30
 pymzml[plot]==2.4.6
 pyqms==0.6.2
 scipy==1.4.1
-git+https://github.com/MKoesters/peptide_fragments.git@feature/setup_script
+git+https://github.com/MKoesters/peptide_fragments.git@feature/add_fragment_method
 loguru==0.4.1
+intervaltree==3.1.0

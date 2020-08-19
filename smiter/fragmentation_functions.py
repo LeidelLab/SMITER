@@ -10,9 +10,10 @@ import numpy as np
 import pandas as pd
 import pyqms
 from loguru import logger
-from peptide_fragmentor import PeptideFragment0r
+from pyteomics import mass
 
 import smiter
+from peptide_fragmentor import PeptideFragment0r
 from smiter.ext.nucleoside_fragment_kb import (
     KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
 )
@@ -47,9 +48,12 @@ class PeptideFragmentor(AbstractFragmentor):
 
     def __init__(self, *args, **kwargs):
         """Summary."""
+        logger.info("Initialize PeptideFragmentor")
         self.args = args
         self.kwargs = kwargs
+        self.fragger = PeptideFragment0r()
 
+    # @profile
     def fragment(self, entities):
         """Summary.
 
@@ -60,12 +64,42 @@ class PeptideFragmentor(AbstractFragmentor):
             entities = [entities]
         frames = []
         for entity in entities:
-            results_table = PeptideFragment0r(entity, **self.kwargs).df
-
+            # logger.debug(f"Fragment {entity}")
+            results_table = self.fragger.fragment(entity, **self.kwargs)
             frames.append(results_table)
         final_table = pd.concat(frames)
         i = np.array([100 for i in range(len(final_table))])
         mz_i = np.stack((final_table["mz"], i), axis=1)
+        return mz_i
+
+
+class PeptideFragmentorPyteomics(AbstractFragmentor):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    # @profile
+    def _fragments(self, peptide, types=("b", "y"), maxcharge=1):
+        for i in range(1, len(peptide) - 1):
+            for ion_type in types:
+                for charge in range(1, maxcharge + 1):
+                    if ion_type[0] in "abc":
+                        yield mass.fast_mass(
+                            peptide[:i], ion_type=ion_type, charge=charge
+                        )
+                    else:
+                        yield mass.fast_mass(
+                            peptide[i:], ion_type=ion_type, charge=charge
+                        )
+
+    # @profile
+    def fragment(self, entities):
+        mz = []
+        for e in entities:
+            a = list(self._fragments(e))
+            mz.extend(a)
+        i = np.array([100 for x in range(len(mz))])
+        mz = np.array(mz)
+        mz_i = np.stack((mz, i), axis=1)
         return mz_i
 
 

@@ -3,6 +3,8 @@ import csv
 from io import TextIOWrapper
 from tempfile import _TemporaryFileWrapper
 
+from loguru import logger
+
 from smiter.params.default_params import default_mzml_params, default_peak_properties
 
 PROTON = 1.00727646677
@@ -33,6 +35,7 @@ def check_mzml_params(mzml_params: dict) -> dict:
     Raises:
         Exception: Description
     """
+    logger.info("Checking mzML params")
     for default_param, default_value in default_mzml_params.items():
         # param not set and default param required
         if (mzml_params.get(default_param, None) is None) and (default_value is None):
@@ -54,6 +57,7 @@ def check_peak_properties(peak_properties: dict) -> dict:
     Raises:
         Exception: Description
     """
+    logger.info("Checking peak properties")
     for mol, properties in peak_properties.items():
         for default_param, default_value in default_peak_properties.items():
             if (properties.get(default_param, None) is None) and (
@@ -68,6 +72,7 @@ def check_peak_properties(peak_properties: dict) -> dict:
 
 
 def csv_to_peak_properties(csv_file):
+    logger.info(f"Read peak properties from {csv_file}")
     peak_properties = {}
     with open(csv_file) as fin:
         reader = csv.DictReader(fin)
@@ -88,6 +93,7 @@ def csv_to_peak_properties(csv_file):
 
 
 def peak_properties_to_csv(peak_properties, csv_file):
+    logger.info(f"Write peak properties to {csv_file}")
     if not isinstance(csv_file, TextIOWrapper):
         csv_file = open(csv_file, "w")
     csv_filename = csv_file.name

@@ -12,4 +12,5 @@ default_mzml_params = {
     "gradient_length": None,
     "min_intensity": 100,
     "isolation_window_width": 0.5,
+    "ion_target": 3e6
 }
