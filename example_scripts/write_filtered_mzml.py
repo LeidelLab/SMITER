@@ -3,7 +3,6 @@
 import sys
 import os
 import pymzml
-import copy
 
 from smiter.synthetic_mzml import write_scans
 
