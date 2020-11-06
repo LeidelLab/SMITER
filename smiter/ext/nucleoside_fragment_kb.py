@@ -12,7 +12,10 @@ KB_FRAGMENTATION_INFO: dict = {
                 "hcd": True,
             },
         },
-        "precursors": {"uridine": {}, "uridine dimer": {},},
+        "precursors": {
+            "uridine": {},
+            "uridine dimer": {},
+        },
     },
     "5-methyluridine": {
         # m5U
@@ -389,7 +392,10 @@ KB_FRAGMENTATION_INFO: dict = {
     "cytidine": {
         "references": [],
         "comments": "",
-        "precursors": {"cytidine dimer": {}, "cytidine": {},},
+        "precursors": {
+            "cytidine dimer": {},
+            "cytidine": {},
+        },
         "fragments": {
             # 'cytidine': {
             #     'formula': 'C(9)H(13)N(3)O(5)'
@@ -436,7 +442,10 @@ KB_FRAGMENTATION_INFO: dict = {
         # m5C
         "comments": "",
         "references": ["Jora et al. 2018"],
-        "precursors": {"5-methylcytidine dimer": {}, "5-methylcytidine": {},},
+        "precursors": {
+            "5-methylcytidine dimer": {},
+            "5-methylcytidine": {},
+        },
         "fragments": {
             "5-methylcytidine -Ribose": {
                 "formula": "C(5)H(7)N(3)O(1)"  # 126.0661883242
@@ -469,7 +478,10 @@ KB_FRAGMENTATION_INFO: dict = {
         # m4C
         "comments": "",
         "references": ["Jora et al. 2018"],
-        "precursors": {"N4-methylcytidine dimer": {}, "N4-methylcytidine": {},},
+        "precursors": {
+            "N4-methylcytidine dimer": {},
+            "N4-methylcytidine": {},
+        },
         "fragments": {
             "N4-methylcytidine -Ribose": {
                 "formula": "C(5)H(7)N(3)O(1)"  # 126.0661883242

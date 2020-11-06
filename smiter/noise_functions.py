@@ -267,7 +267,12 @@ class JamssNoiseInjector(AbstractNoiseInjector):
         else:
             total_tic = sum(scan.i)
         white_noise_i = np.random.uniform(1, 100, n)
-        white_noise_i = white_noise_i / white_noise_i.sum() * np.random.uniform(0.01, 0.05) * total_tic
+        white_noise_i = (
+            white_noise_i
+            / white_noise_i.sum()
+            * np.random.uniform(0.01, 0.05)
+            * total_tic
+        )
 
         white_noise_mz = np.random.uniform(0, 1200, n)
         new_i = np.concatenate((scan.i, white_noise_i))
