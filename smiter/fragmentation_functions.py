@@ -140,4 +140,4 @@ class NucleosideFragmentor(AbstractFragmentor):
             # should overlapping peaks be divided into two very similar ones?
         m = sorted(list(set(m)))
         # logger.debug(m)
-        return np.array([(mass, 100) for mass in m])
+        return np.array([(mass, 1) for mass in m])

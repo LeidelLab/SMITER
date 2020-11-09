@@ -13,7 +13,12 @@ from smiter.fragmentation_functions import (
     PeptideFragmentor,
 )
 from smiter.noise_functions import GaussNoiseInjector, UniformNoiseInjector
-from smiter.synthetic_mzml import write_mzml
+from smiter.synthetic_mzml import (
+    generate_interval_tree,
+    generate_molecule_isotopologue_lib,
+    generate_scans,
+    write_mzml,
+)
 
 
 class TestFragmentor(AbstractFragmentor):
@@ -309,21 +314,11 @@ def test_write_inosine_proper_fragments_mzml():
             if len(ino_i) > 0:
                 ino_intensities.append(ino_i[0])
                 ino_rt.append(spec.scan_time[0])
-        if spec.ms_level == 2:
-            # 9 out of 10 specs are empty, only collect the one
-            if len(spec.mz) > 0:
-                ino_fragments.append(spec.mz)
-            pass
 
     _, p = normaltest(ino_intensities)
-    # assert p < 5e-4
     expected_frags = np.array([137.0457872316])
-    # Check ino fragments are correct
-    from pprint import pprint
 
-    # pprint(ino_fragments)
     for frag_list in ino_fragments:
-        print(frag_list)
         assert len(frag_list) == len(expected_frags)
         sorted_frags = np.sort(frag_list)
         assert abs(sorted_frags - expected_frags) < 0.001
@@ -438,13 +433,145 @@ def test_rescale_intensity():
     assert round(i_rescaled, 2) == 50
 
 
-def test_generate_scans():
-    pass
+def test_generate_interval_tree():
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 5,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1,
+        },
+        "pseudouridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 4,
+            "peak_width": 5,  # seconds
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1,
+        },
+    }
+    tree = generate_interval_tree(peak_props)
+
+    # only uridine
+    tree_3 = tree[3]
+    assert len(tree_3) == 1
+    for entry in tree_3:
+        assert entry.data == "uridine"
+        assert entry.length() == 5
+
+    # only pseudouridine
+    tree_8 = tree[8]
+    assert len(tree_3) == 1
+    for entry in tree_8:
+        assert entry.data == "pseudouridine"
+        assert entry.length() == 5
+
+    # uridine and pseudouridine
+    tree_4 = tree[4]
+    assert len(tree_4) == 2
+    items = ["pseudouridine", "uridine"]
+    for entry in tree_4:
+        items.remove(entry.data)
+        assert entry.length() == 5
+    assert len(items) == 0
+
+
+def test_generate_scans_simple():
+    # generate 1 MS1 and 1 MS2 scan
+    # peak width is as long as gradient and two times ms_rt_diff
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 0.06,  # peak as long as ms_rt_diff and gradient length
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1,
+        }
+    }
+    trivial_names = {val["chemical_formula"]: key for key, val in peak_props.items()}
+    scans, mol_scan_dict = generate_scans(
+        generate_molecule_isotopologue_lib(peak_props, [1, 2, 3], trivial_names),
+        peak_props,
+        generate_interval_tree(peak_props),
+        NucleosideFragmentor(),
+        UniformNoiseInjector(),
+        {"gradient_length": 0.06, "min_intensity": 0, "isolation_window_width": 0.2},
+    )
+    assert len(scans) == 1  # one MS1 with related MS2 scans
+    assert len(scans[0]) == 2  # first element is a MS1 scan and a list of MS2 scans
+    assert len(scans[0][1]) == 1  # list of MS2 scans has one scan
 
 
 def test_generate_molecule_isotopologue_lib():
-    pass
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 0.06,  # peak as long as ms_rt_diff and gradient length
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1,
+        }
+    }
+    charges = [1, 2, 3]
+    trivial_names = {"+C(9)H(11)N(2)O(6)": "uridine"}
+    lib = generate_molecule_isotopologue_lib(peak_props, charges, trivial_names)
+    assert list(lib.keys()) == ["uridine"]
+    assert np.isclose(
+        lib["uridine"]["mz"],
+        [
+            244.06898754897,
+            245.0719679828717,
+            246.07520232545858,
+            247.07816626379343,
+            248.08119874642063,
+            249.08046560448767,
+            250.08533987345024,
+        ],
+    ).all()
+    assert np.isclose(
+        lib["uridine"]["i"],
+        [
+            1.0,
+            0.10819885003176334,
+            0.01762911869579814,
+            0.0013546885053562444,
+            6.246133599652487e-05,
+            4.563511253647458e-07,
+            4.800737885333426e-10,
+        ],
+    ).all()
 
 
-def test_write_scans():
-    pass
+def test_write_mzml_one_spec():
+    tempfile = NamedTemporaryFile("wb")
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 0.03,  # peak as long as ms_rt_diff and gradient length
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1,
+        }
+    }
+    fragmentor = NucleosideFragmentor()
+    noise = UniformNoiseInjector()
+    mzml_params = {"gradient_length": 0.03, "ms_rt_diff": 0.03}
+
+    write_mzml(tempfile, peak_props, fragmentor, noise, mzml_params)
+    reader = pymzml.run.Reader(tempfile.name)
+    assert reader.get_spectrum_count() == 1

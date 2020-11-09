@@ -6,3 +6,4 @@ scipy==1.4.1
 git+https://github.com/MKoesters/peptide_fragments.git@feature/add_fragment_method
 loguru==0.4.1
 intervaltree==3.1.0
+pyteomics==4.3.3

@@ -2,6 +2,7 @@
 import io
 import pathlib
 import time
+import warnings
 from pprint import pformat
 from typing import Callable, Dict, List, Tuple, Union
 
@@ -23,6 +24,8 @@ from smiter.lib import (
 )
 from smiter.noise_functions import AbstractNoiseInjector
 from smiter.peak_distribution import distributions
+
+warnings.filterwarnings("ignore")
 
 
 class Scan(dict):
@@ -117,7 +120,7 @@ class Scan(dict):
         return v
 
 
-def genereate_interval_tree(peak_properties):
+def generate_interval_tree(peak_properties):
     """Conctruct an interval tree containing the elution windows of the analytes.
 
     Args:
@@ -155,7 +158,7 @@ def write_mzml(
     mzml_params = check_mzml_params(mzml_params)
     peak_properties = check_peak_properties(peak_properties)
 
-    interval_tree = genereate_interval_tree(peak_properties)
+    interval_tree = generate_interval_tree(peak_properties)
 
     filename = file if isinstance(file, str) else file.name
     scans = []
@@ -229,13 +232,6 @@ def rescale_intensity(
             scale=peak_properties[f"{molecule}"]["peak_params"]["scale"],
         )
     elif scale_func == "gauss_tail":
-        # logger.debug(
-        #     f'RT: {rt}\n SCT: {peak_properties[f"{molecule}"]["scan_start_time"]}'
-        # )
-        # logger.debug(f'Diff: {rt - peak_properties[f"{molecule}"]["scan_start_time"]}')
-        # logger.debug(
-        #     f'0.075 * {rt - peak_properties[f"{molecule}"]["scan_start_time"]} + 2'
-        # )
         mu = (
             peak_properties[f"{molecule}"]["scan_start_time"]
             + 0.3 * peak_properties[f"{molecule}"]["peak_width"]
@@ -330,8 +326,11 @@ def generate_scans(
         s = Scan(
             {"mz": np.array(mz), "i": np.array(inten), "id": i, "rt": t, "ms_level": 1}
         )
+        sorting = s.mz.argsort()
+        s.mz = s.mz[sorting]
+        s.i = s.i[sorting]
         # add noise
-        s = noise_injector.inject_noise(s)
+        # s = noise_injector.inject_noise(s)
         prec_scan_id = i
         i += 1
         scans.append((s, []))
@@ -364,8 +363,8 @@ def generate_scans(
                 # dont add empty MS2 scans but have just a much scans as precursors
                 ms2_scan = Scan(
                     {
-                        "mz": [],
-                        "i": [],
+                        "mz": np.array([]),
+                        "i": np.array([]),
                         "rt": t,
                         "id": i,
                         "precursor_mz": 0,
@@ -391,6 +390,7 @@ def generate_scans(
                 peaks = fragmentor.fragment(all_mols_in_mz_and_rt_window)
                 frag_mz = peaks[:, 0]
                 frag_i = peaks[:, 1]
+                # TODO rescale MS2 intensity here too
                 ms2_scan = Scan(
                     {
                         "mz": frag_mz,
@@ -404,14 +404,24 @@ def generate_scans(
                         "ms_level": 2,
                     }
                 )
-                ms2_scan = noise_injector.inject_noise(ms2_scan)
+                # TODO use
+                ms2_scan.i = rescale_intensity(
+                    ms2_scan.i, t, mol, peak_properties, isotopologue_lib
+                )
+                # ms2_scan.i += (ms2_scan.i * np.random.uniform(0, 0.2, len(ms2_scan.i)))
+                # logger.info(f"MS after rescaling {ms2_scan.i}")
+                # ms2_scan = noise_injector.inject_noise(ms2_scan)
+                ms2_scan.i *= 0.5
+                # logger.info(f"MS after rescaling and noise injection {ms2_scan.i}")
                 t += ms_rt_diff
                 progress_bar.update(ms_rt_diff)
                 if t > gradient_length:
                     break
             if mol is not None:
                 mol_scan_dict[mol]["ms2_scans"].append(i)
-            if len(ms2_scan.mz) > 0:
+            if (
+                len(ms2_scan.mz) > -1
+            ):  # TODO -1 to also add empty ms2 specs; 0 breaks tests currently ....
                 sorting = ms2_scan.mz.argsort()
                 ms2_scan.mz = ms2_scan.mz[sorting]
                 ms2_scan.i = ms2_scan.i[sorting]
@@ -546,7 +556,7 @@ def write_scans(
                                 "MSn Spectrum",
                                 {"ms level": 2},
                                 {
-                                    "scan start time": scan.retention_time,
+                                    "scan start time": prod.retention_time,
                                     "unitName": "second",
                                 },
                                 {"total ion current": sum(prod.i)},
