@@ -475,7 +475,7 @@ def write_scans(
                                 "MSn Spectrum",
                                 {"ms level": 2},
                                 {
-                                    "scan start time": scan.retention_time,
+                                    "scan start time": prod.retention_time,
                                     "unitName": "second",
                                 },
                                 {"total ion current": sum(prod.i)},
