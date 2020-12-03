@@ -78,7 +78,8 @@ def csv_to_peak_properties(csv_file):
         reader = csv.DictReader(fin)
         for line_dict in reader:
             cc = line_dict["chemical_formula"]
-            peak_properties[cc] = {
+            tn = line_dict["trivial_name"]
+            peak_properties[tn] = {
                 "trivial_name": line_dict["trivial_name"],
                 "chemical_formula": cc,
                 "charge": int(line_dict.get("charge", 2)),
