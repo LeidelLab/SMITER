@@ -5,6 +5,7 @@ import os
 from tempfile import NamedTemporaryFile
 
 import pytest
+
 from smiter.lib import (
     check_mzml_params,
     check_peak_properties,
@@ -72,24 +73,24 @@ def test_check_peak_properties_missing_required():
 def test_csv_to_peak_properties():
     csv_file = os.path.join(os.path.dirname(__file__), "data", "molecules_test.csv")
     peak_properties = csv_to_peak_properties(csv_file)
-    assert "+C(10)H(15)N(3)O(5)" in peak_properties
+    assert "2′-O-methylcytidine" in peak_properties
     assert (
-        peak_properties["+C(10)H(15)N(3)O(5)"]["trivial_name"] == "2′-O-methylcytidine"
+        peak_properties["2′-O-methylcytidine"]["trivial_name"] == "2′-O-methylcytidine"
     )
-    assert peak_properties["+C(10)H(15)N(3)O(5)"]["scan_start_time"] == 10
-    assert peak_properties["+C(10)H(15)N(3)O(5)"]["peak_scaling_factor"] == 1e6
+    assert peak_properties["2′-O-methylcytidine"]["scan_start_time"] == 10
+    assert peak_properties["2′-O-methylcytidine"]["peak_scaling_factor"] == 1e6
     # default
-    assert peak_properties["+C(10)H(15)N(3)O(5)"]["charge"] == 2
+    assert peak_properties["2′-O-methylcytidine"]["charge"] == 2
 
-    assert "+C(12)H(16)N(2)O(8)" in peak_properties
+    assert "5-methoxycarbonylmethyluridine" in peak_properties
     assert (
-        peak_properties["+C(12)H(16)N(2)O(8)"]["trivial_name"]
+        peak_properties["5-methoxycarbonylmethyluridine"]["trivial_name"]
         == "5-methoxycarbonylmethyluridine"
     )
-    assert peak_properties["+C(12)H(16)N(2)O(8)"]["scan_start_time"] == 12
-    assert peak_properties["+C(12)H(16)N(2)O(8)"]["peak_scaling_factor"] == 2e6
+    assert peak_properties["5-methoxycarbonylmethyluridine"]["scan_start_time"] == 12
+    assert peak_properties["5-methoxycarbonylmethyluridine"]["peak_scaling_factor"] == 2e6
     # default
-    assert peak_properties["+C(12)H(16)N(2)O(8)"]["charge"] == 2
+    assert peak_properties["5-methoxycarbonylmethyluridine"]["charge"] == 2
 
 
 def test_peak_properties_to_csv():

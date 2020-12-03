@@ -2,9 +2,9 @@
 
 """Tests for `smiter` package."""
 
+import pytest
 from click.testing import CliRunner
 
-import pytest
 from smiter import cli, synthetic_mzml
 
 

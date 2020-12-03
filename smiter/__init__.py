@@ -14,11 +14,13 @@ import smiter.synthetic_mzml
 
 config = {
     "handlers": [
-        {"sink": sys.stdout, "level": "DEBUG"},
+        {"sink": sys.stdout, "level": "INFO"},
         {
             "sink": os.path.join(tempfile.gettempdir(), "smiter.log"),
             "compression": "gz",
             "rotation": "100 MB",
+            "level": "DEBUG",
+            "backtrace": True,
         },
     ],
 }
