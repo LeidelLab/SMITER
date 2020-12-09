@@ -336,7 +336,7 @@ def generate_scans(
         s.mz = s.mz[sorting]
         s.i = s.i[sorting]
         # add noise
-        # s = noise_injector.inject_noise(s)
+        s = noise_injector.inject_noise(s)
         prec_scan_id = i
         i += 1
         scans.append((s, []))

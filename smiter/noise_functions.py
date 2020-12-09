@@ -320,7 +320,11 @@ class JamssNoiseInjector(AbstractNoiseInjector):
             norm_int = scan.i / max(scan.i) * 100
         except ValueError:
             norm_int = np.array([])
+        # TODO make variable parameters
+        # TODO Check mspire paper again for variables
+        # TODO pass data structure with max_i in elution profile and mzs calculate noise to intensity/max_i_in_profile
         m = 0.001701
+        #m = 0.1701
         y = 0.543
         y = 0.2
         sigma = m * norm_int ** (-y)
@@ -334,6 +338,10 @@ class JamssNoiseInjector(AbstractNoiseInjector):
             norm_int = scan.i / max(scan.i) * 100
         except ValueError:
             norm_int = np.array([])
+        # TODO make variable parameters
+        # TODO Check mspire paper again for variables
+        # TODO pass data structure with max_i in elution profile and mzs calculate noise to intensity/max_i_in_profile
+        m = 0.001701
         m = 10.34
         c = 0.00712
         d = 0.12
