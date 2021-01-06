@@ -308,6 +308,7 @@ class PPMShiftInjector(AbstractNoiseInjector):
         offset = self.kwargs['offset']
         sigma = self.kwargs['sigma']
         noise = np.random.normal(offset, sigma, len(scan.mz))
+        noise = noise * scan.mz
         return noise
 
     def _generate_intensity_noise(self, scan, *args, **kwargs):
