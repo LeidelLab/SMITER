@@ -234,6 +234,8 @@ class UniformNoiseInjector(AbstractNoiseInjector):
         return noise
 
 
+#TODO add white noise params
+#TODO should be called MSpireNoiseInjector
 class JamssNoiseInjector(AbstractNoiseInjector):
     def __init__(self, *args, **kwargs):
         """Noise injector based on this paper:

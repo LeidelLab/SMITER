@@ -106,12 +106,12 @@ class PeptideFragmentorPyteomics(AbstractFragmentor):
 class NucleosideFragmentor(AbstractFragmentor):
     """Summary."""
 
-    def __init__(self, nucleotide_fragment_kb: Dict[str, dict] = None):
+    def __init__(self, nucleotide_fragment_kb: Dict[str, dict] = None, raise_error_for_non_existing_fragments=True):
         """Summary."""
         logger.info("Initialize NucleosideFragmentor")
         if nucleotide_fragment_kb is None:
             nucleoside_fragment_kb = pyrnams_nucleoside_fragment_kb
-
+        self.raise_error_for_non_existing_fragments = raise_error_for_non_existing_fragments
         nuc_to_fragments: Dict[str, List[float]] = {}
         cc = pyqms.chemical_composition.ChemicalComposition()
         for nuc_name, nuc_dict in nucleoside_fragment_kb.items():
@@ -134,7 +134,10 @@ class NucleosideFragmentor(AbstractFragmentor):
             entities = [entities]
         m = []
         for entity in entities:
-            masses = self.nuc_to_fragments[entity]
+            if raise_error_for_non_existing_fragments is True:
+                masses = self.nuc_to_fragments[entity]
+            else:
+                masses = self.nuc_to_fragments.get(entities, [])
             m.extend(masses)
             # logger.debug(masses)
             # should overlapping peaks be divided into two very similar ones?
