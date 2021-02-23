@@ -3,7 +3,11 @@ import numpy as np
 import pytest
 
 import smiter
-from smiter.noise_functions import GaussNoiseInjector, UniformNoiseInjector, JamssNoiseInjector
+from smiter.noise_functions import (
+    GaussNoiseInjector,
+    UniformNoiseInjector,
+    JamssNoiseInjector,
+)
 from smiter.synthetic_mzml import Scan
 
 # np.random.seed(1312)
@@ -205,7 +209,8 @@ def test_UniformNoiseInjector_mz_noise_ms1():
         < np.array([100, 200, 300], dtype="float32") * 5e-6
     ).all()
 
-#def test_JamssNoiseInjector_mz_noise_ms1():
+
+# def test_JamssNoiseInjector_mz_noise_ms1():
 #    i_array = np.array([1e6, 2e6, 3e6], dtype="float32")
 #    scan = Scan(
 #        {
@@ -217,6 +222,7 @@ def test_UniformNoiseInjector_mz_noise_ms1():
 #    noise_injector = JamssNoiseInjector(ppm_noise=5e-6, intensity_noise=0.4)
 #    scan = noise_injector.inject_noise(scan)
 
+
 def test_JamssNoiseInjector_intensity_noise_ms1():
     i_array = np.array([1e6, 2e6, 3e6], dtype="float32")
     scan = Scan(
@@ -227,17 +233,4 @@ def test_JamssNoiseInjector_intensity_noise_ms1():
         }
     )
     noise_injector = JamssNoiseInjector(ppm_noise=5e-6, intensity_noise=0.4)
-    scan = noise_injector.inject_noise(scan)
-
-
-def test_NewNoiseInjector():
-    i_array = np.array([1e6, 2e6, 3e6], dtype="float32")
-    scan = Scan(
-        {
-            "mz": np.array([100, 200, 300], dtype="float32"),
-            "i": i_array,
-            "ms_level": 1,
-        }
-    )
-    noise_injector = NewNoiseInjector(ppm_noise=5e-6, intensity_noise=0.4)
     scan = noise_injector.inject_noise(scan)
