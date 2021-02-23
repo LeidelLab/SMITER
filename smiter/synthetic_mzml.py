@@ -283,6 +283,7 @@ def generate_scans(
     mol_scan_dict: Dict[str, Dict[str, list]] = {}
     scans: List[Tuple[Scan, List[Scan]]] = []
     i: int = 0
+    de_tracker: Dict[str, int] = {}
 
     mol_scan_dict = {
         mol: {"ms1_scans": [], "ms2_scans": []} for mol in isotopologue_lib
@@ -398,34 +399,40 @@ def generate_scans(
                     + peak_properties[mol_plus]["peak_width"]
                 )
                 >= t
+                # check for dynamic_exclusion
             ):
                 # fragment all molecules in isolation and rt window
-                peaks = fragmentor.fragment(all_mols_in_mz_and_rt_window)
-                frag_mz = peaks[:, 0]
-                frag_i = peaks[:, 1]
-                # TODO rescale MS2 intensity here too
-                ms2_scan = Scan(
-                    {
-                        "mz": frag_mz,
-                        "i": frag_i,
-                        "rt": t,
-                        "id": i,
-                        "precursor_mz": mol_monoisotopic[mol]["mz"],
-                        "precursor_i": mol_monoisotopic[mol]["i"],
-                        "precursor_charge": 1,
-                        "precursor_scan_id": prec_scan_id,
-                        "ms_level": 2,
-                    }
-                )
-                # TODO use
-                ms2_scan.i = rescale_intensity(
-                    ms2_scan.i, t, mol, peak_properties, isotopologue_lib
-                )
-                # ms2_scan.i += (ms2_scan.i * np.random.uniform(0, 0.2, len(ms2_scan.i)))
-                # logger.info(f"MS after rescaling {ms2_scan.i}")
-                ms2_scan = noise_injector.inject_noise(ms2_scan)
-                ms2_scan.i *= 0.5
-                # logger.info(f"MS after rescaling and noise injection {ms2_scan.i}")
+                # check if molecule needs to be fragmented according to dynamic_exclusion rule
+                if (
+                    de_tracker.get(mol, None) is not None
+                    and (t - de_tracker[mol]) > mzml_params["dynamic_exclusion"]
+                ):
+                    peaks = fragmentor.fragment(all_mols_in_mz_and_rt_window)
+                    frag_mz = peaks[:, 0]
+                    frag_i = peaks[:, 1]
+                    # TODO rescale MS2 intensity here too
+                    ms2_scan = Scan(
+                        {
+                            "mz": frag_mz,
+                            "i": frag_i,
+                            "rt": t,
+                            "id": i,
+                            "precursor_mz": mol_monoisotopic[mol]["mz"],
+                            "precursor_i": mol_monoisotopic[mol]["i"],
+                            "precursor_charge": 1,
+                            "precursor_scan_id": prec_scan_id,
+                            "ms_level": 2,
+                        }
+                    )
+                    # TODO use
+                    ms2_scan.i = rescale_intensity(
+                        ms2_scan.i, t, mol, peak_properties, isotopologue_lib
+                    )
+                    # ms2_scan.i += (ms2_scan.i * np.random.uniform(0, 0.2, len(ms2_scan.i)))
+                    # logger.info(f"MS after rescaling {ms2_scan.i}")
+                    ms2_scan = noise_injector.inject_noise(ms2_scan)
+                    ms2_scan.i *= 0.5
+                    # logger.info(f"MS after rescaling and noise injection {ms2_scan.i}")
                 t += ms_rt_diff
                 progress_bar.update(ms_rt_diff)
                 if t > gradient_length:

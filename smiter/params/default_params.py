@@ -14,4 +14,5 @@ default_mzml_params = {
     "isolation_window_width": 0.5,
     "ion_target": 3e6,
     "ms_rt_diff": 0.03,
+    "dynamic_exclusion": 30,  # in seconds
 }
