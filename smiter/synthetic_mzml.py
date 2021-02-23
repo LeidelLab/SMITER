@@ -310,8 +310,13 @@ def generate_scans(
             intensity = rescale_intensity(
                 intensity, t, mol, peak_properties, isotopologue_lib
             )
+
             mask = intensity > mzml_params["min_intensity"]
             intensity = intensity[mask]
+
+            # clip max intensity
+            intensity = np.clip(intensity, a_max=mzml_params["max_intensity"])
+
             mz = mz[mask]
             mol_peaks = list(zip(mz, intensity))
             mol_peaks = {round(mz, 6): i for mz, i in list(zip(mz, intensity))}
