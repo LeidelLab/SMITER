@@ -315,7 +315,9 @@ def generate_scans(
             intensity = intensity[mask]
 
             # clip max intensity
-            intensity = np.clip(intensity, a_max=mzml_params["max_intensity"])
+            intensity = np.clip(
+                intensity, a_min=None, a_max=mzml_params["max_intensity"]
+            )
 
             mz = mz[mask]
             mol_peaks = list(zip(mz, intensity))
