@@ -5,6 +5,7 @@ import time
 import warnings
 from pprint import pformat
 from typing import Callable, Dict, List, Tuple, Union
+from collections import Counter
 
 import numpy as np
 import pyqms
@@ -244,9 +245,10 @@ def rescale_intensity(
         )
     elif scale_func is None:
         dist_scale_factor = 1
+    #TODO use ionization_effiency here
     i *= dist_scale_factor * peak_properties[f"{molecule}"].get(
         "peak_scaling_factor", 1e3
-    )
+    ) * peak_properties[f"{molecule}"].get("ionization_effiency", 1)
     return i
 
 
@@ -267,7 +269,9 @@ def generate_scans(
         fragmentation_function (A): Description
         mzml_params (TYPE): Description
     """
-    chimeric = 0
+    logger.info('Initialize chimeric spectra counter')
+    chimeric_count = 0
+    chimeric = Counter()
     logger.info("Start generating scans")
     t0 = time.time()
     gradient_length = mzml_params["gradient_length"]
@@ -364,7 +368,8 @@ def generate_scans(
                 )
             ]
             if len(all_mols_in_mz_and_rt_window) > 1:
-                chimeric += 1
+                chimeric_count += 1
+                chimeric[len(all_mols_in_mz_and_rt_window)] += 1
             if mol is None:
                 # dont add empty MS2 scans but have just a much scans as precursors
                 ms2_scan = Scan(
@@ -416,7 +421,7 @@ def generate_scans(
                 )
                 # ms2_scan.i += (ms2_scan.i * np.random.uniform(0, 0.2, len(ms2_scan.i)))
                 # logger.info(f"MS after rescaling {ms2_scan.i}")
-                # ms2_scan = noise_injector.inject_noise(ms2_scan)
+                ms2_scan = noise_injector.inject_noise(ms2_scan)
                 ms2_scan.i *= 0.5
                 # logger.info(f"MS after rescaling and noise injection {ms2_scan.i}")
                 t += ms_rt_diff
@@ -437,7 +442,7 @@ def generate_scans(
     t1 = time.time()
     logger.info("Finished generating scans")
     logger.info(f"Generating scans took {t1-t0:.2f} seconds")
-    logger.info(f"Found {chimeric} chimeric scans")
+    logger.info(f"Found {chimeric_count} chimeric scans")
     return scans, mol_scan_dict
 
 
