@@ -1,0 +1,8 @@
+{
+  "binary": "/home/manuel/.virtualenvs/SMITER-dev/bin/pyre.bin",
+  "source_directories": [
+    "."
+  ],
+  "taint_models_path": "/home/manuel/.virtualenvs/SMITER-dev/lib",
+  "typeshed": "/home/manuel/.virtualenvs/SMITER-dev/lib/pyre_check/typeshed"
+}

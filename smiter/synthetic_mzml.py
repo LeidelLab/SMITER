@@ -245,10 +245,12 @@ def rescale_intensity(
         )
     elif scale_func is None:
         dist_scale_factor = 1
-    #TODO use ionization_effiency here
-    i *= dist_scale_factor * peak_properties[f"{molecule}"].get(
-        "peak_scaling_factor", 1e3
-    ) * peak_properties[f"{molecule}"].get("ionization_effiency", 1)
+    # TODO use ionization_effiency here
+    i *= (
+        dist_scale_factor
+        * peak_properties[f"{molecule}"].get("peak_scaling_factor", 1e3)
+        * peak_properties[f"{molecule}"].get("ionization_effiency", 1)
+    )
     return i
 
 
@@ -269,7 +271,7 @@ def generate_scans(
         fragmentation_function (A): Description
         mzml_params (TYPE): Description
     """
-    logger.info('Initialize chimeric spectra counter')
+    logger.info("Initialize chimeric spectra counter")
     chimeric_count = 0
     chimeric = Counter()
     logger.info("Start generating scans")

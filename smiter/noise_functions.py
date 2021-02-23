@@ -305,8 +305,8 @@ class PPMShiftInjector(AbstractNoiseInjector):
         """
         # noise_level = np.random.normal(ppm_offset * 5e-6, ppm_var * 5e-6, len(scan.mz))
         # get scaling from kwargs
-        offset = self.kwargs['offset']
-        sigma = self.kwargs['sigma']
+        offset = self.kwargs["offset"]
+        sigma = self.kwargs["sigma"]
         noise = np.random.normal(offset, sigma, len(scan.mz))
         noise = noise * scan.mz
         return noise
@@ -324,8 +324,8 @@ class PPMShiftInjector(AbstractNoiseInjector):
         return noise
 
 
-#TODO add white noise params
-#TODO should be called MSpireNoiseInjector
+# TODO add white noise params
+# TODO should be called MSpireNoiseInjector
 class JamssNoiseInjector(AbstractNoiseInjector):
     def __init__(self, *args, **kwargs):
         """Noise injector based on this paper:
@@ -361,22 +361,22 @@ class JamssNoiseInjector(AbstractNoiseInjector):
             total_tic = 5e6
         # logger.info(f"Total TIC: {sum(scan.i)}")
         white_noise_i = np.random.uniform(1, 100, n)
-        max_perc_noise = .75
-        min_perc_noise = .5
+        max_perc_noise = 0.75
+        min_perc_noise = 0.5
         white_noise_i = (
             white_noise_i
             / white_noise_i.sum()
             * np.random.uniform(min_perc_noise, max_perc_noise)
             * total_tic
         )
-        #logger.info(f'Add white noise intensity: {white_noise_i}')
+        # logger.info(f'Add white noise intensity: {white_noise_i}')
         # scale = np.random.uniform(1e5, 1e8) / n
         # white_noise_i *= scale
         # logger.info(f"Noise: {sum(white_noise_i)}")
         white_noise_mz = np.random.uniform(0, 1200, n)
         new_i = np.concatenate((scan.i, white_noise_i))
         new_mz = np.concatenate((scan.mz, white_noise_mz))
-        #logger.info(f'Add new white noise {new_i}')
+        # logger.info(f'Add new white noise {new_i}')
         sort = new_mz.argsort()
         scan.mz = new_mz[sort]
         scan.i = new_i[sort]
@@ -423,7 +423,7 @@ class JamssNoiseInjector(AbstractNoiseInjector):
         # TODO Check mspire paper again for variables
         # TODO pass data structure with max_i in elution profile and mzs calculate noise to intensity/max_i_in_profile
         m = 0.001701
-        #m = 0.1701
+        # m = 0.1701
         y = 0.543
         y = 0.2
         sigma = m * norm_int ** (-y)
