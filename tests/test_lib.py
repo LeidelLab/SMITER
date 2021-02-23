@@ -88,7 +88,9 @@ def test_csv_to_peak_properties():
         == "5-methoxycarbonylmethyluridine"
     )
     assert peak_properties["5-methoxycarbonylmethyluridine"]["scan_start_time"] == 12
-    assert peak_properties["5-methoxycarbonylmethyluridine"]["peak_scaling_factor"] == 2e6
+    assert (
+        peak_properties["5-methoxycarbonylmethyluridine"]["peak_scaling_factor"] == 2e6
+    )
     # default
     assert peak_properties["5-methoxycarbonylmethyluridine"]["charge"] == 2
 

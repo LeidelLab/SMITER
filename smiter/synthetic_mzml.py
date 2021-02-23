@@ -294,11 +294,13 @@ def generate_scans(
     )
     while t < gradient_length:
         scan_peaks: List[Tuple[float, float]] = []
+        scan_peaks = {}
         mol_i = []
         mol_monoisotopic = {}
         candidates = interval_tree.at(t)
         # print(len(candidates))
         for mol in candidates:
+            # if len(candidates) > 1:
             mol = mol.data
             mol_plus = f"{mol}"
             mz = np.array(isotopologue_lib[mol]["mz"])
@@ -308,21 +310,25 @@ def generate_scans(
             )
             mask = intensity > mzml_params["min_intensity"]
             intensity = intensity[mask]
-            # print(sum(intensity))
-            # if sum(intensity) > 1:
-            # breakpoint()
             mz = mz[mask]
             mol_peaks = list(zip(mz, intensity))
+            mol_peaks = {round(mz, 6): i for mz, i in list(zip(mz, intensity))}
+            # !FIXED! multiple molecules which share mz should have summed up intensityies for that shared mzs
             if len(mol_peaks) > 0:
                 mol_i.append((mol, mz[0], sum(intensity)))
-                scan_peaks.extend(mol_peaks)
+                # scan_peaks.extend(mol_peaks)
+                for mz, intensity in mol_peaks.items():
+                    if mz in scan_peaks:
+                        scan_peaks[mz] += intensity
+                    else:
+                        scan_peaks[mz] = intensity
                 mol_scan_dict[mol]["ms1_scans"].append(i)
-                highest_peak = max(mol_peaks, key=lambda x: x[1])
+                highest_peak = max(mol_peaks.items(), key=lambda x: x[1])
                 mol_monoisotopic[mol] = {
                     "mz": highest_peak[0],
                     "i": highest_peak[1],
                 }
-        scan_peaks = sorted(scan_peaks, key=lambda x: x[1])
+        scan_peaks = sorted(list(scan_peaks.items()), key=lambda x: x[1])
         if len(scan_peaks) > 0:
             mz, inten = zip(*scan_peaks)
         else:
@@ -334,7 +340,7 @@ def generate_scans(
         s.mz = s.mz[sorting]
         s.i = s.i[sorting]
         # add noise
-        # s = noise_injector.inject_noise(s)
+        s = noise_injector.inject_noise(s)
         prec_scan_id = i
         i += 1
         scans.append((s, []))
@@ -528,6 +534,7 @@ def write_scans(
                         mz_at_max_i = 0
                         max_i = 0
                     spec_tic = sum(scan.i)
+                    # print(id_format_str.format(i=scan.id))
                     writer.write_spectrum(
                         scan.mz,
                         scan.i,
@@ -551,8 +558,8 @@ def write_scans(
                     intensity_array.append(spec_tic)
                     # Write MSn scans
                     for prod in products:
-                        if len(prod.mz) < 1:
-                            continue
+                        # if len(prod.mz) < 1:
+                        #     continue
                         writer.write_spectrum(
                             prod.mz,
                             prod.i,

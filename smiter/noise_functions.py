@@ -234,6 +234,96 @@ class UniformNoiseInjector(AbstractNoiseInjector):
         return noise
 
 
+class PPMShiftInjector(AbstractNoiseInjector):
+    def __init__(self, *args, **kwargs):
+        # np.random.seed(1312)
+        logger.info("Initialize PPMShiftInjector")
+        self.args = args
+        self.kwargs = kwargs
+
+    def inject_noise(self, scan, *args, **kwargs):
+        """Main noise injection method.
+
+        Args:
+            scan (Scan): Scan object
+            *args: Description
+            **kwargs: Description
+
+        """
+        self.kwargs.update(kwargs)
+        # self.args += args
+        if scan.ms_level == 1:
+            scan = self._ms1_noise(scan, *self.args, **self.kwargs)
+        elif scan.ms_level > 1:
+            scan = self._msn_noise(scan, *self.args, **self.kwargs)
+        return scan
+
+    def _ms1_noise(self, scan, *args, **kwargs):
+        """Generate ms1 noise.
+
+        Args:
+            scan (Scan): Description
+            *args: Description
+            **kwargs: Description
+        """
+        mz_noise = self._generate_mz_noise(scan, *args, **kwargs)
+        intensity_noise = self._generate_intensity_noise(scan, *args, **kwargs)
+        scan.mz += mz_noise
+        scan.i += intensity_noise
+        scan.i[scan.i < 0] = 0
+        return scan
+
+    def _msn_noise(self, scan, *args, **kwargs):
+        """Generate msn noise.
+
+        Args:
+            scan (Scan): Description
+            *args: Description
+            **kwargs: Description
+        """
+        mz_noise = self._generate_mz_noise(scan, *args, **kwargs)
+        intensity_noise = self._generate_intensity_noise(scan, *args, **kwargs)
+        scan.mz += mz_noise
+        scan.i += intensity_noise
+        scan.i[scan.i < 0] = 0
+        # scan.mz[scan.mz < 0] = 0
+        dropout = kwargs.get("dropout", 0.1)
+        dropout_mask = [
+            False if c < dropout else True for c in np.random.random(len(scan.mz))
+        ]
+        scan.mz = scan.mz[dropout_mask]
+        scan.i = scan.i[dropout_mask]
+        return scan
+
+    def _generate_mz_noise(self, scan, *args, **kwargs):
+        """Generate noise for mz_array.
+
+        Args:
+            scan (Scan): Scan object
+            *args: Description
+            **kwargs: Description
+        """
+        # noise_level = np.random.normal(ppm_offset * 5e-6, ppm_var * 5e-6, len(scan.mz))
+        # get scaling from kwargs
+        offset = self.kwargs['offset']
+        sigma = self.kwargs['sigma']
+        noise = np.random.normal(offset, sigma, len(scan.mz))
+        noise = noise * scan.mz
+        return noise
+
+    def _generate_intensity_noise(self, scan, *args, **kwargs):
+        """Generate intensity noise.
+
+        Args:
+            scan (Scan): Scan object
+            *args: Description
+            **kwargs: Description
+        """
+        # get scaling from kwargs
+        noise = [0 for x in range(len(scan.i))]
+        return noise
+
+
 #TODO add white noise params
 #TODO should be called MSpireNoiseInjector
 class JamssNoiseInjector(AbstractNoiseInjector):
@@ -265,21 +355,28 @@ class JamssNoiseInjector(AbstractNoiseInjector):
     def _add_white_noise(self, scan):
         n = int(np.random.uniform(100, 500))
         if sum(scan.i) == 0:
-            total_tic = 100
+            total_tic = 5e6
         else:
             total_tic = sum(scan.i)
+            total_tic = 5e6
+        # logger.info(f"Total TIC: {sum(scan.i)}")
         white_noise_i = np.random.uniform(1, 100, n)
+        max_perc_noise = .75
+        min_perc_noise = .5
         white_noise_i = (
             white_noise_i
             / white_noise_i.sum()
-            * np.random.uniform(0.01, 0.05)
+            * np.random.uniform(min_perc_noise, max_perc_noise)
             * total_tic
         )
-
+        #logger.info(f'Add white noise intensity: {white_noise_i}')
+        # scale = np.random.uniform(1e5, 1e8) / n
+        # white_noise_i *= scale
+        # logger.info(f"Noise: {sum(white_noise_i)}")
         white_noise_mz = np.random.uniform(0, 1200, n)
         new_i = np.concatenate((scan.i, white_noise_i))
         new_mz = np.concatenate((scan.mz, white_noise_mz))
-
+        #logger.info(f'Add new white noise {new_i}')
         sort = new_mz.argsort()
         scan.mz = new_mz[sort]
         scan.i = new_i[sort]
@@ -322,7 +419,11 @@ class JamssNoiseInjector(AbstractNoiseInjector):
             norm_int = scan.i / max(scan.i) * 100
         except ValueError:
             norm_int = np.array([])
+        # TODO make variable parameters
+        # TODO Check mspire paper again for variables
+        # TODO pass data structure with max_i in elution profile and mzs calculate noise to intensity/max_i_in_profile
         m = 0.001701
+        #m = 0.1701
         y = 0.543
         y = 0.2
         sigma = m * norm_int ** (-y)
@@ -336,6 +437,10 @@ class JamssNoiseInjector(AbstractNoiseInjector):
             norm_int = scan.i / max(scan.i) * 100
         except ValueError:
             norm_int = np.array([])
+        # TODO make variable parameters
+        # TODO Check mspire paper again for variables
+        # TODO pass data structure with max_i in elution profile and mzs calculate noise to intensity/max_i_in_profile
+        m = 0.001701
         m = 10.34
         c = 0.00712
         d = 0.12

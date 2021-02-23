@@ -15,8 +15,10 @@ import tensorflow as tf
 import smiter
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pymzml
 
-sns.set_style('darkgrid')
+# sns.set_style('darkgrid')
+plt.style.use('ggplot')
 
 # seed(42)
 warnings.simplefilter("ignore")
@@ -33,10 +35,11 @@ def main(fasta_file, evidences=None):
         train_df = pd.DataFrame()
         train_df['seq'] = ev['Sequence']
         train_df['modifications'] = ev['Modifications'].fillna('')
-        train_df['tr'] = ev['Retention Time (s)'] / 60
+        train_df['tr'] = ev['Retention Time (s)']
         dlc = deeplc.DeepLC()
         logger.info(f'Train DeepLC on {evidences}')
         dlc.calibrate_preds(seq_df=train_df)
+        # breakpoint()
 
     start = time.time()
     logger.info("Parsing fasta and calculating peak Properties")
@@ -82,6 +85,7 @@ def main(fasta_file, evidences=None):
                     "trivial_name": p,
                     "charge": charge_state,
                     "scan_start_time": predicted_start,
+                    # "scan_start_time": deeplc_predicted_rt,
                     "peak_width": peak_width,
                     "peak_function": peak_function,
                     "peak_params": peak_params,
@@ -99,6 +103,9 @@ def main(fasta_file, evidences=None):
     for i, line in pred_df.iterrows():
         peak_props[line['seq']]['scan_start_time'] = line['tr']
     duration = time.time() - start
+
+    pred_df['tr'].plot.histo()
+    plt.show()
 
 
     # d = {}
@@ -118,8 +125,8 @@ def main(fasta_file, evidences=None):
     #     count.append(d[rt])
     # plt.plot(t, count); plt.show()
     mzml_params = {
-        "gradient_length": 120,  # in minutes
-        "ms_rt_diff": 0.001,  # in minutes
+        "gradient_length": 120 * 60,  # in minutes
+        "ms_rt_diff": 0.001 * 60,  # in minutes
         "min_intensity": 0
     }
 
@@ -154,6 +161,16 @@ def main(fasta_file, evidences=None):
     )
     logger.info(f'Wrote mzML  to {file}')
     # logger.info(f"Wrote mzML in {time.time() - start} seconds")
+    with pymzml.run.Reader(file) as run:
+        rt = []
+        tic = []
+        for spec in run:
+            rt.append(spec.scan_time_in_minutes())
+            tic.append(spec.i.sum())
+    plt.plot(rt, tic)
+    plt.ylabel('TIC')
+    plt.xlabel('time')
+    plt.show()
 
 
 if __name__ == "__main__":
