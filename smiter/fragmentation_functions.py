@@ -5,6 +5,11 @@ Arguments should be passed via *args and **kwargs
 """
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Union
+import sys
+import shutil
+import subprocess
+import os
+import csv
 
 import numpy as np
 import pandas as pd
@@ -146,6 +151,61 @@ class NucleosideFragmentor(AbstractFragmentor):
                 masses = self.nuc_to_fragments[entity]
             else:
                 masses = self.nuc_to_fragments.get(entity, [])
+            m.extend(masses)
+            # logger.debug(masses)
+            # should overlapping peaks be divided into two very similar ones?
+        m = sorted(list(set(m)))
+        # logger.debug(m)
+        return np.array([(mass, 1) for mass in m])
+
+
+class LipidFragmentor(AbstractFragmentor):
+    """Summary."""
+
+    def __init__(
+        self,
+        lipid_input_csv: str = None,
+        raise_error_for_non_existing_fragments=True,
+    ):
+        """Use LipidCreator to calculate precursor transitions of lipids."""
+        self.lip_to_fragments = {}
+        # TODO run lipid fragmenter here, read output file and collect results in dict
+        commands: List[str] = []
+        if sys.platform == "linux" or sys.platform == "darwin":
+            commands.append("mono")
+            lipid_creator_path = shutil.which("LipidCreator.exe")
+        else:
+            # will this work under windows?
+            lipid_creator_path = "LipidCreator"
+        commands.extend(
+            [lipid_creator_path, "transitionlist", lipid_input_csv, "lipid_output.csv"]
+        )
+        proc = subprocess.run(commands)
+        with open("lipid_output.csv") as fin:
+            for line in csv.DictReader(fin):
+                if line["PrecursorName"] not in self.lip_to_fragments:
+                    self.lip_to_fragments[line["PrecursorName"]] = []
+                self.lip_to_fragments[line["PrecursorName"]].append(
+                    float(line["ProductMz"])
+                )
+        os.remove("lipid_output.csv")
+
+    def fragment(
+        self, entities: Union[list, str], raise_error_for_non_existing_fragments=False
+    ):
+        """Summary.
+
+        Args:
+            entity (TYPE): Description
+        """
+        if isinstance(entities, str):
+            entities = [entities]
+        m = []
+        for entity in entities:
+            if raise_error_for_non_existing_fragments is True:
+                masses = self.lip_to_fragments[entity]
+            else:
+                masses = self.lip_to_fragments.get(entity, [])
             m.extend(masses)
             # logger.debug(masses)
             # should overlapping peaks be divided into two very similar ones?
