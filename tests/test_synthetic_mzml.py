@@ -575,3 +575,47 @@ def test_write_mzml_one_spec():
     write_mzml(tempfile, peak_props, fragmentor, noise, mzml_params)
     reader = pymzml.run.Reader(tempfile.name)
     assert reader.get_spectrum_count() == 1
+
+
+def test_dynacmic_exclusion():
+    tempfile = NamedTemporaryFile("wb")
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 5,  # peak as long as ms_rt_diff and gradient length
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1e5,
+        }
+    }
+    trivial_names = {"+C(9)H(11)N(2)O(6)": "uridine"}
+    # dynamic_exclusion is bigger than gradient length, so we expect only one MS2 fragment spectrum
+    default_mzml_params = {
+        "gradient_length": 5,
+        "min_intensity": 100,
+        "isolation_window_width": 0.5,
+        "ion_target": 3e6,
+        "ms_rt_diff": 0.03,
+        "dynamic_exclusion": 30,  # in seconds
+    }
+    scans, mol_scan_dict = generate_scans(
+        generate_molecule_isotopologue_lib(peak_props, [1, 2, 3], trivial_names),
+        peak_props,
+        generate_interval_tree(peak_props),
+        NucleosideFragmentor(),
+        UniformNoiseInjector(),
+        default_mzml_params,
+    )
+    number_fragment_specs = 0
+    for ms1, ms2_list in scans:
+        for ms2 in ms2_list:
+            if len(ms2["mz"]) > 0:
+                number_fragment_specs += 1
+    # fails when dynamic_exclusion is set to 0
+    # since there will be 15 fragments specs
+    assert number_fragment_specs == 1
+
+    # breakpoint()

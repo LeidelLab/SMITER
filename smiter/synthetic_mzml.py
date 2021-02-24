@@ -359,7 +359,7 @@ def generate_scans(
             :10
         ]:
             mol_plus = f"{mol}"
-
+            # breakpoint()
             # TODO use tree here also
             # candidates = interval_tree.at(t)
             all_mols_in_mz_and_rt_window = [
@@ -373,6 +373,7 @@ def generate_scans(
             if len(all_mols_in_mz_and_rt_window) > 1:
                 chimeric_count += 1
                 chimeric[len(all_mols_in_mz_and_rt_window)] += 1
+            # breakpoint()
             if mol is None:
                 # dont add empty MS2 scans but have just a much scans as precursors
                 ms2_scan = Scan(
@@ -403,10 +404,12 @@ def generate_scans(
             ):
                 # fragment all molecules in isolation and rt window
                 # check if molecule needs to be fragmented according to dynamic_exclusion rule
+                # breakpoint()
                 if (
-                    de_tracker.get(mol, None) is not None
-                    and (t - de_tracker[mol]) > mzml_params["dynamic_exclusion"]
+                    de_tracker.get(mol, None) is None
+                    or (t - de_tracker[mol]) > mzml_params["dynamic_exclusion"]
                 ):
+                    de_tracker[mol] = t
                     peaks = fragmentor.fragment(all_mols_in_mz_and_rt_window)
                     frag_mz = peaks[:, 0]
                     frag_i = peaks[:, 1]
