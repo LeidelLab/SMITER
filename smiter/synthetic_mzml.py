@@ -537,6 +537,7 @@ def write_scans(
                         max_i = 0
                     spec_tic = sum(scan.i)
                     # print(id_format_str.format(i=scan.id))
+                    print(f"{scan.id:10}", end="\r")
                     writer.write_spectrum(
                         scan.mz,
                         scan.i,
@@ -546,7 +547,7 @@ def write_scans(
                             {"ms level": 1},
                             {
                                 "scan start time": scan.retention_time,
-                                "unitName": "second",
+                                "unit_name": "seconds",
                             },
                             {"total ion current": spec_tic},
                             {"base peak m/z": mz_at_max_i, "unitName": "m/z"},
@@ -571,7 +572,7 @@ def write_scans(
                                 {"ms level": 2},
                                 {
                                     "scan start time": prod.retention_time,
-                                    "unitName": "second",
+                                    "unit_name": "seconds",
                                 },
                                 {"total ion current": sum(prod.i)},
                             ],
