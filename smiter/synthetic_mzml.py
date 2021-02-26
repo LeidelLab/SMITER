@@ -546,7 +546,7 @@ def write_scans(
                             {"ms level": 1},
                             {
                                 "scan start time": scan.retention_time,
-                                "unitName": "second",
+                                "unitName": "seconds",
                             },
                             {"total ion current": spec_tic},
                             {"base peak m/z": mz_at_max_i, "unitName": "m/z"},
