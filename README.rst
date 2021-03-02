@@ -6,13 +6,12 @@ SMITER
 .. image:: https://img.shields.io/pypi/v/smiter.svg
         :target: https://pypi.python.org/pypi/smiter
 
-.. image:: https://travis-ci.com/MKoesters/SMITER.svg?token=7Uh1o2G3gUZXxMB2xrqp&branch=dev
+.. image:: https://travis-ci.com/MKoesters/SMITER.svg?branch=dev
         :target: https://travis-ci.com/MKoesters/smiter
 
 .. image:: https://readthedocs.org/projects/smiter/badge/?version=latest
         :target: https://smiter.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
-
 
 .. image:: https://pyup.io/repos/github/MKoesters/smiter/shield.svg
      :target: https://pyup.io/repos/github/MKoesters/smiter/
@@ -22,7 +21,7 @@ SMITER
 Summary
 -------
 
-Pytohn library to create synthetic mzMLs file based on chemical formulas. All molecules can be simulated du to abstraction to chemical formulas.
+Python library to create synthetic mzMLs file based on chemical formulas. All molecules can be simulated du to abstraction to chemical formulas.
 
 Abstract
 -------
@@ -38,8 +37,14 @@ SMITER (Synthetic mzML writer) is a python-based command-line tool designed to s
 Features
 --------
 
-* TODO
+* simulate mass spectrometry data for any biomolecule
+* usage of highly-accurate isotopic patterns enabled by `pyQms`_
+* feature scaling by gauss-, gamma- and exponentially-modified gaussian distributions
+* m/z-and intensity noise injection ( uniform noise or a noise model that combines general noise with intensity-specific noise)
+* MS2 fragmentation for peptides and modified nucleosides. 
 
+.. _pyQms:
+	https://github.com/pyQms/pyqms
 
 Download and Installation
 -------------------------
@@ -66,7 +71,7 @@ Execute the following command from your command line::
 
 
 Installation from source
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 Clone the GitHub repo `GitHub`_::
 
@@ -85,12 +90,19 @@ Install the requirements and SMITER::
 
 .. note::
 
-	We recommedn using an virtual environment when using SMITER
+	We recommend using an virtual environment when using SMITER
 
 
+
+Testing
+-------
+
+To test the package and correct installation::
+
+    user@localhost:~/smiter$ tox
 
 Copyrights
-***********
+----------
 
 Copyright 2020-2021 by authors and contributors
 
@@ -101,7 +113,7 @@ Copyright 2020-2021 by authors and contributors
 
 
 Contact
-*******
+-------
 
     | Prof. Dr. Sebastian Leidel
     | University of Bern
@@ -112,9 +124,11 @@ Contact
 
 
 Citation
-********
+--------
 
 Please do not forget to cite SMITER:
+
+<ref>
 
 
 Credits
