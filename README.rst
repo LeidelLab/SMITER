@@ -30,8 +30,6 @@ SMITER (Synthetic mzML writer) is a python-based command-line tool designed to s
 
 
 
-* Free software: MIT license
-* Documentation: https://smiter.readthedocs.io.
 
 
 Features
@@ -42,6 +40,8 @@ Features
 * feature scaling by gauss-, gamma- and exponentially-modified gaussian distributions
 * m/z-and intensity noise injection ( uniform noise or a noise model that combines general noise with intensity-specific noise)
 * MS2 fragmentation for peptides and modified nucleosides. 
+* Free software: MIT license
+* Documentation: https://smiter.readthedocs.io.
 
 .. _pyQms:
 	https://github.com/pyQms/pyqms
@@ -52,10 +52,10 @@ Download and Installation
 SMITER requires `Python`_ 3.6 or higher.
 
 
-There are two recommended ways for installing SMITER:
+There are two recommended ways for installing SMITER
 
-    * Installation via pip
-    * Installation from the source (GitHub)
+* Installation via pip
+* Installation from the source (GitHub)
 
 .. _Python:
    https://www.python.org/downloads/
@@ -75,7 +75,7 @@ Installation from source
 
 Clone the GitHub repo `GitHub`_::
 
-   user@localhost:~$ git clone https://github.com/LeidelLal/SMITER.git
+   user@localhost:~$ git clone https://github.com/LeidelLab/SMITER.git
 
 
 .. _GitHub:
@@ -87,6 +87,7 @@ Install the requirements and SMITER::
     user@localhost:~$ cd smiter
     user@localhost:~/smiter$ pip install -r requirements.txt
     user@localhost:~/smiter$ python setup.py install
+
 
 .. note::
 
@@ -115,12 +116,12 @@ Copyright 2020-2021 by authors and contributors
 Contact
 -------
 
-    | Prof. Dr. Sebastian Leidel
-    | University of Bern
-	| Department of Chemistry, Biochemistry and Pharmaceutical Sciences
-	| Freiestrasse 3
-	| 3012 Bern
-	| Switzerland
+ Prof. Dr. Sebastian Leidel
+ University of Bern
+ Department of Chemistry, Biochemistry and Pharmaceutical Sciences
+ Freiestrasse 3
+ 3012 Bern
+ Switzerland
 
 
 Citation
