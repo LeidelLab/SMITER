@@ -54,7 +54,7 @@ def test_write_empty_mzml():
     }
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 166
+    assert reader.get_spectrum_count() == 167
 
 
 def test_write_inosine_flat_mzml():
@@ -75,7 +75,7 @@ def test_write_inosine_flat_mzml():
     }
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 999
+    assert reader.get_spectrum_count() == 1000
 
 
 def test_write_inosine_gauss_mzml():
@@ -96,7 +96,7 @@ def test_write_inosine_gauss_mzml():
     }
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 999
+    assert reader.get_spectrum_count() == 1000
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
@@ -126,7 +126,7 @@ def test_write_mzml_get_TIC():
     noise_injector = GaussNoiseInjector(variance=0.0)
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 999
+    assert reader.get_spectrum_count() == 1000
     reader = pymzml.run.Reader(mzml_path)
     tics = []
     for spec in reader:
@@ -155,7 +155,7 @@ def test_write_inosine_gamma_mzml():
     }
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 999
+    assert reader.get_spectrum_count() == 1000
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
@@ -170,29 +170,28 @@ def test_write_inosine_adenosine_gauss_mzml():
     peak_props = {
         "inosine": {
             "chemical_formula": "+C(10)H(12)N(4)O(5)",
-            "charge": 2,
+            "charge": 1,
             "trivial_name": "inosine",
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
             "peak_params": {"sigma": 3},  # 10% of peak width,
+            "peak_scaling_factor": 1e3,
         },
         "+C(10)H(13)N(5)O(4)": {
             "chemical_formula": "+C(10)H(13)N(5)O(4)",
             "trivial_name": "adenosine",
-            "charge": 2,
+            "charge": 1,
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
             "peak_params": {"sigma": 3},  # 10% of peak width,
         },
     }
-    mzml_params = {
-        "gradient_length": 30,
-    }
+    mzml_params = {"gradient_length": 30, "min_intensity": 0}
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 999
+    assert reader.get_spectrum_count() == 1000
 
     ino_rt = []
     ino_intensities = []
@@ -212,6 +211,7 @@ def test_write_inosine_adenosine_gauss_mzml():
             if len(ino_i) > 0:
                 ino_intensities.append(ino_i[0])
                 ino_rt.append(spec.scan_time[0])
+
     _, p = normaltest(ino_intensities)
     # assert p < 5e-4
     _, p = normaltest(adeno_intensities)
@@ -223,7 +223,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     peak_props = {
         "inosine": {
             "chemical_formula": "+C(10)H(12)N(4)O(5)",
-            "charge": 2,
+            "charge": 1,
             "trivial_name": "inosine",
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -234,7 +234,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
         "+C(10)H(13)N(5)O(4)": {
             "chemical_formula": "+C(10)H(13)N(5)O(4)",
             "trivial_name": "adenosine",
-            "charge": 2,
+            "charge": 1,
             "scan_start_time": 15,
             "peak_width": 30,  # seconds
             "peak_function": "gauss",
@@ -249,7 +249,7 @@ def test_write_inosine_adenosine_gauss_shift_mzml():
     # noise_injector = UniformformNoiseInjector()
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1499
+    assert reader.get_spectrum_count() == 1500
 
     ino_rt = []
     ino_intensities = []
@@ -282,7 +282,7 @@ def test_write_inosine_proper_fragments_mzml():
     peak_props = {
         "inosine": {
             "chemical_formula": "+C(10)H(12)N(4)O(5)",
-            "charge": 2,
+            "charge": 1,
             "trivial_name": "inosine",
             "scan_start_time": 0,
             "peak_width": 30,  # seconds
@@ -300,7 +300,7 @@ def test_write_inosine_proper_fragments_mzml():
         file, peak_props, nucl_fragmentor, noise_injector, mzml_params
     )
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 999
+    assert reader.get_spectrum_count() == 1000
 
     ino_rt = []
     ino_intensities = []
@@ -353,7 +353,7 @@ def test_write_peptide_gauss_mzml():
     fragmentor = PeptideFragmentor()
     mzml_path = write_mzml(file, peak_props, fragmentor, noise_injector, mzml_params)
     reader = pymzml.run.Reader(mzml_path)
-    assert reader.get_spectrum_count() == 1499
+    assert reader.get_spectrum_count() == 1500
     intensities = []
     for spec in reader:
         if spec.ms_level == 1:
@@ -531,13 +531,13 @@ def test_generate_molecule_isotopologue_lib():
     assert np.isclose(
         lib["uridine"]["mz"],
         [
-            244.06898754897,
-            245.0719679828717,
-            246.07520232545858,
-            247.07816626379343,
-            248.08119874642063,
-            249.08046560448767,
-            250.08533987345024,
+            122.53813200786999,
+            123.03962222482085,
+            123.54123939611428,
+            124.04272136528171,
+            124.5442376065953,
+            125.04387103562883,
+            125.54630817011011,
         ],
     ).all()
     assert np.isclose(
@@ -575,3 +575,47 @@ def test_write_mzml_one_spec():
     write_mzml(tempfile, peak_props, fragmentor, noise, mzml_params)
     reader = pymzml.run.Reader(tempfile.name)
     assert reader.get_spectrum_count() == 1
+
+
+def test_dynacmic_exclusion():
+    tempfile = NamedTemporaryFile("wb")
+    peak_props = {
+        "uridine": {
+            "charge": 2,
+            "chemical_formula": "+C(9)H(11)N(2)O(6)",
+            "trivial_name": "uridine",
+            "scan_start_time": 0,
+            "peak_width": 5,  # peak as long as ms_rt_diff and gradient length
+            "peak_function": "gauss",
+            "peak_params": {"sigma": 1},  # 10% of peak width,
+            "peak_scaling_factor": 1e5,
+        }
+    }
+    trivial_names = {"+C(9)H(11)N(2)O(6)": "uridine"}
+    # dynamic_exclusion is bigger than gradient length, so we expect only one MS2 fragment spectrum
+    default_mzml_params = {
+        "gradient_length": 5,
+        "min_intensity": 100,
+        "isolation_window_width": 0.5,
+        "ion_target": 3e6,
+        "ms_rt_diff": 0.03,
+        "dynamic_exclusion": 30,  # in seconds
+    }
+    scans, mol_scan_dict = generate_scans(
+        generate_molecule_isotopologue_lib(peak_props, [1, 2, 3], trivial_names),
+        peak_props,
+        generate_interval_tree(peak_props),
+        NucleosideFragmentor(),
+        UniformNoiseInjector(),
+        default_mzml_params,
+    )
+    number_fragment_specs = 0
+    for ms1, ms2_list in scans:
+        for ms2 in ms2_list:
+            if len(ms2["mz"]) > 0:
+                number_fragment_specs += 1
+    # fails when dynamic_exclusion is set to 0
+    # since there will be 15 fragments specs
+    assert number_fragment_specs == 1
+
+    # breakpoint()
