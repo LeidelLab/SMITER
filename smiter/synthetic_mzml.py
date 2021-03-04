@@ -310,12 +310,19 @@ def generate_scans(
             intensity = rescale_intensity(
                 intensity, t, mol, peak_properties, isotopologue_lib
             )
+
             mask = intensity > mzml_params["min_intensity"]
             intensity = intensity[mask]
+
+            # clip max intensity
+            intensity = np.clip(
+                intensity, a_min=None, a_max=mzml_params.get("max_intensity", 1e10)
+            )
+
             mz = mz[mask]
             mol_peaks = list(zip(mz, intensity))
             mol_peaks = {round(mz, 6): i for mz, i in list(zip(mz, intensity))}
-            # !FIXED! multiple molecules which share mz should have summed up intensityies for that shared mzs
+            # !FIXED! multiple molecules which share mz should have summed up intensities for that shared mzs
             if len(mol_peaks) > 0:
                 mol_i.append((mol, mz[0], sum(intensity)))
                 # scan_peaks.extend(mol_peaks)
