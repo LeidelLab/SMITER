@@ -307,8 +307,15 @@ def generate_scans(
             intensity = rescale_intensity(
                 intensity, t, mol, peak_properties, isotopologue_lib
             )
+
             mask = intensity > mzml_params["min_intensity"]
             intensity = intensity[mask]
+
+            # clip max intensity
+            intensity = np.clip(
+                intensity, a_min=None, a_max=mzml_params.get("max_intensity", 1e10)
+            )
+
             mz = mz[mask]
             mol_peaks = list(zip(mz, intensity))
             mol_peaks = {round(mz, 6): _i for mz, _i in list(zip(mz, intensity))}
@@ -603,7 +610,7 @@ def write_scans(
                             {"ms level": 1},
                             {
                                 "scan start time": scan.retention_time,
-                                "unitName": "second",
+                                "unit_name": "seconds",
                             },
                             {"total ion current": spec_tic},
                             {"base peak m/z": mz_at_max_i, "unitName": "m/z"},
@@ -626,7 +633,7 @@ def write_scans(
                                 {"ms level": 2},
                                 {
                                     "scan start time": prod.retention_time,
-                                    "unitName": "second",
+                                    "unit_name": "seconds",
                                 },
                                 {"total ion current": sum(prod.i)},
                             ],

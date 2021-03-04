@@ -11,9 +11,12 @@ default_peak_properties = {
 default_mzml_params = {
     "gradient_length": None,
     "min_intensity": 100,
+    "max_intensity": 1e10,  # what would be reasonable?
     "isolation_window_width": 0.5,
     "ion_target": 3e6,
     "ms_rt_diff": 0.03,
     "dynamic_exclusion": 30,  # in seconds
     "max_ms2_spectra": 10,
+    "mz_lower_limit": 100,
+    "mz_upper_limit": 1600,
 }
