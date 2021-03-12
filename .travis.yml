@@ -1,5 +1,7 @@
 language: python
 dist: bionic
+before_install:
+  - sudo apt-get -y install rustc
 python:
 - '3.8'
 sudo: false
