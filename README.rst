@@ -6,15 +6,15 @@ SMITER
 .. image:: https://img.shields.io/pypi/v/smiter.svg
         :target: https://pypi.python.org/pypi/smiter
 
-.. image:: https://travis-ci.com/MKoesters/SMITER.svg?branch=dev
-        :target: https://travis-ci.com/MKoesters/smiter
+.. image:: https://api.travis-ci.com/LeidelLab/SMITER.svg?branch=dev
+        :target: https://travis-ci.com/LeidelLab/smiter
 
 .. image:: https://readthedocs.org/projects/smiter/badge/?version=latest
         :target: https://smiter.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/MKoesters/smiter/shield.svg
-     :target: https://pyup.io/repos/github/MKoesters/smiter/
+.. image:: https://pyup.io/repos/github/LeidelLab/smiter/shield.svg
+     :target: https://pyup.io/repos/github/LeidelLab/smiter/
      :alt: Updates
 
 
