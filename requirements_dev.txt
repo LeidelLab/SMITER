@@ -6,12 +6,13 @@ flake8==3.7.8
 tox==3.14.0
 coverage==4.5.4
 codecov
-Sphinx==1.8.5
+twine==3.3.0
+Sphinx==3.5.2
 twine==1.14.0
-Click==7.0
 pytest==6.2.2
+Click==7.1.2
 pytest-runner==5.1
-pydocstyle
+pydocstyle==5.1.1
 coverage==4.5.4
 matplotlib==3.2.1
 -r requirements.txt
