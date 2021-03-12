@@ -1,6 +1,7 @@
 """Summary."""
 import os
 import numpy as np
+import pytest
 
 import smiter
 from smiter.fragmentation_functions import (
@@ -26,6 +27,7 @@ def test_fragment_nucleotide():
     assert ((peaks[:, 0] - expected_mzs) < 0.001).all()
 
 
+@pytest.mark.skipif("TRAVIS" in os.environ and os.environ["TRAVIS"] == "true", reason="Skipping this test on Travis CI.")
 def test_fragment_lipid():
     test_lipid_file = "test_lipids.txt"
     test_lipid_file = os.path.abspath(test_lipid_file)
