@@ -11,7 +11,7 @@ twine==1.14.0
 Click==7.0
 pytest==4.6.5
 pytest-runner==5.1
-pydocstyle
+pydocstyle==5.1.1
 coverage==4.5.4
 matplotlib==3.2.1
 -r requirements.txt
