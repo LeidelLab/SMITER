@@ -14,5 +14,5 @@ pytest==4.6.5
 pytest-runner==5.1
 pydocstyle==5.1.1
 coverage==4.5.4
-matplotlib==3.2.1
+matplotlib==3.3.4
 -r requirements.txt
