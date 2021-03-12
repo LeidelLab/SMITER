@@ -14,7 +14,7 @@ SMITER
         :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/LeidelLab/smiter/shield.svg
-     :target: https://pyup.io/repos/github/LeidelLab/smiter/
+     :target: https://pyup.io/account/repos/github/LeidelLab/SMITER/
      :alt: Updates
 
 
