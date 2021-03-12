@@ -22,4 +22,4 @@ install:
   - pip install tox-travis
 script: tox
 env:
-    - CODECOV_TOKEN="60f88a96-5a0b-439b-81be-5273ee57881b"
+    - CODECOV_TOKEN='508cb725-429e-48e0-81ba-42652f377e6f'
