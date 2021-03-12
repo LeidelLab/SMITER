@@ -1,6 +1,6 @@
-pip==19.2.3
+pip==21.0.1
 bump2version==0.5.11
-wheel==0.33.6
+wheel==0.36.2
 watchdog==0.9.0
 flake8==3.7.8
 tox==3.14.0
@@ -8,11 +8,10 @@ coverage==4.5.4
 codecov
 twine==3.3.0
 Sphinx==3.5.2
-twine==3.3.0
 Click==7.1.2
 pytest==4.6.5
 pytest-runner==5.1
-pydocstyle
+pydocstyle==5.1.1
 coverage==4.5.4
-matplotlib==3.2.1
+matplotlib==3.3.4
 -r requirements.txt
