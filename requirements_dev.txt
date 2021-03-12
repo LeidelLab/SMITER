@@ -6,6 +6,7 @@ flake8==3.7.8
 tox==3.14.0
 coverage==4.5.4
 codecov
+twine==3.3.0
 Sphinx==3.5.2
 twine==1.14.0
 Click==7.0
