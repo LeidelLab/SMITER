@@ -14,4 +14,5 @@ pytest-runner==5.1
 pydocstyle==5.1.1
 coverage==4.5.4
 matplotlib==3.3.4
+setuptools-rust==0.12.1
 -r requirements.txt
