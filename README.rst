@@ -39,7 +39,7 @@ Features
 * usage of highly-accurate isotopic patterns enabled by `pyQms`_
 * feature scaling by gauss-, gamma- and exponentially-modified gaussian distributions
 * m/z-and intensity noise injection ( uniform noise or a noise model that combines general noise with intensity-specific noise)
-* MS2 fragmentation for peptides and modified nucleosides. 
+* MS2 fragmentation for peptides and modified nucleosides.
 * Free software: MIT license
 * Documentation: https://smiter.readthedocs.io.
 
@@ -49,7 +49,7 @@ Features
 Download and Installation
 -------------------------
 
-SMITER requires `Python`_ 3.6 or higher.
+SMITER requires `Python`_ 3.7 or higher.
 
 
 There are two recommended ways for installing SMITER
