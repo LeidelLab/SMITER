@@ -108,7 +108,7 @@ Copyrights
 Copyright 2020-2021 by authors and contributors
 
 
-* Manuel Koesters
+* Manuel Kösters
 * Johannes Leufken
 * Sebastian Leidel
 
