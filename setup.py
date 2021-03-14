@@ -25,20 +25,22 @@ test_requirements = [
 setup(
     author="Manuel Kösters",
     author_email="manuel.koesters@dcb.unibe.ch",
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     description="Library to create synthetic mzMLs file based on chemical formulas",
-    entry_points={"console_scripts": ["smiter=smiter.cli:main",],},
+    entry_points={
+        "console_scripts": [
+            "smiter=smiter.cli:main",
+        ],
+    },
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,
