@@ -12,9 +12,14 @@ jobs:
         python-version: [3.9]
 
     steps:
-    - name: 'Black'
-      uses: RojerGS/python-black-check@master
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: RojerGS/python-black-check@master
       with:
         line-length: '89'
-        path: '.'
+        path: './smiter'
         exclude: '(/*.html|/*.mo|/*.po|/*.png|/*.rst)'
+
