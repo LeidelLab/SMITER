@@ -19,7 +19,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - uses: RojerGS/python-black-check@master
       with:
-        line-length: '89'
         path: './smiter'
         exclude: '(/*.html|/*.mo|/*.po|/*.png|/*.rst)'
 
