@@ -20,5 +20,4 @@ jobs:
     - uses: RojerGS/python-black-check@master
       with:
         path: './smiter'
-        exclude: '(/*.html|/*.mo|/*.po|/*.png|/*.rst)'
-
+        line_length: 88
