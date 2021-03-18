@@ -1,4 +1,9 @@
 uses: RojerGS/python-black-check@master
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
 with:
   line-length: '81'
   path: '.'
