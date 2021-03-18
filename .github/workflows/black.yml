@@ -12,8 +12,9 @@ jobs:
         python-version: [3.9]
 
     steps:
-    - uses: RojerGS/python-black-check@master
+    - name: 'Black'
+      uses: RojerGS/python-black-check@master
       with:
         line-length: '89'
-        path: './smiter'
+        path: '.'
         exclude: '(/*.html|/*.mo|/*.po|/*.png|/*.rst)'
