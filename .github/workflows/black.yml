@@ -1,11 +1,19 @@
-uses: RojerGS/python-black-check@master
 on:
   push:
     branches: [ dev ]
   pull_request:
     branches: [ dev ]
-with:
-  line-length: '81'
-  path: '.'
-  include: 'apps'
-  exclude: '(/*.html|/*.mo|/*.po|/*.png|/*.rst)'
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+
+    steps:
+    - uses: RojerGS/python-black-check@master
+      with:
+        line-length: '89'
+        path: './smiter'
+        exclude: '(/*.html|/*.mo|/*.po|/*.png|/*.rst)'
