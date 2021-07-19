@@ -7,4 +7,4 @@ loguru==0.5.3
 intervaltree==3.1.0
 pyteomics==4.4.1
 tqdm==4.61.0
-numpy==1.20.3
+numpy==1.21.1
