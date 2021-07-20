@@ -6,7 +6,7 @@ tox==3.23.1
 flake8==3.9.2
 coverage==4.5.4
 codecov==2.1.11
-twine==3.4.1
+twine==3.4.2
 pytest==6.2.4
 Click==8.0.1
 Sphinx==4.0.2
