@@ -6,5 +6,5 @@ git+https://github.com/MKoesters/peptide_fragments.git@feature/add_fragment_meth
 loguru==0.5.3
 intervaltree==3.1.0
 pyteomics==4.4.1
-tqdm==4.61.0
 numpy==1.21.2
+tqdm==4.62.2
