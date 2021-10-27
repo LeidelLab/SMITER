@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# custom
+# smiter/ext/nucleoside_fragment_kb.py
+example_scripts/*.mzML
+example_scripts/*.html
+example_scripts/*.png

@@ -1,0 +1,36 @@
+language: python
+dist: bionic
+before_install:
+  - sudo apt-get -y install rustc
+python:
+- '3.8'
+sudo: false
+matrix:
+  include:
+  - python: 3.7
+    env: TOXENV=py37
+    dist: xenial
+  - python: 3.8
+    env: TOXENV=py38
+    dist: xenial
+  - python: 3.9
+    env: TOXENV=py39
+  - python: 3.8
+    env: TOXENV=coverage
+install:
+  - pip install -U pip
+  - pip install tox-travis
+script: tox
+env:
+    - CODECOV_TOKEN='508cb725-429e-48e0-81ba-42652f377e6f'
+deploy:
+  provider: pypi
+  user: "__token__"
+  password:
+    secure: "L0tbk6hK2mXq6Qc5ku4YDeKwFnhmUDZ6KtquNJ1mpsoJnNRZ9cIqbHp8EhnlwdMgExk22ENFqkmM7fR1vDDZ6sMudNUAmPTsuoLauJI6ejdx7PbtMJVjwHoFG8T+o6h6WsFThSofsnC/2ivC4+nF91H819WDMhWHRwG+ofe82fOZlLfq9cqytAIOn6il3gckVyHZvK6CY0aO8bVeYD3PdzX3zG0WmmN1vwIH0vA9Jut9lv0b7xZBBbtD5Pk5N2NFK3KaCKznKWzb+FSDbIDvdzgAXnfqoEKLwZEMyAFcRNhlcnDTYE9U1/XQ2mAIAi+lOiFSPgfV3C6u9uMNekpuXJzws7nLk0fNEuO614Ab0ZTWqdJk0Sldw8X48L8NiNrG8GUfJIEAU9TXC50VC8Xk65Bv6LzbzlqT2Fa0NEYvIrHbh3wVXjU7KMMLGQ5/9tpf1yAe8FxPmqxSXAA3P9aROpaA2QeJb6hOSqrt2YQ1zkWal79JNs5prxZElJVEpwJvFDxUJNWA8WUgCwBqvQJKLXKRt4CBzlQcfQZ1k+1bSFB20uOkBbKFoYuJLCXyq4/G74heYqBSBp0m8vJlfLYUd7y0PGyiBtPXL5RIBEC+noP7RFKR1+BaDKGwjOIBM4vA01/1mRQVCr2jHI6CDNHyGwi5NeIWocDT4V9XSNClMhM="
+  distributions: sdist bdist_wheel bdist_egg
+  on:
+    tags: true
+    all_branches: true
+    skip_existing: true
+    skip_cleanup: true
