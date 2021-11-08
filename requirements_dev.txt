@@ -1,8 +1,8 @@
 bump2version==1.0.1
 pip==21.3.1
 wheel==0.37.0
+watchdog==2.1.6
 tox==3.24.4
-watchdog==2.1.5
 coverage==6.1.1
 flake8==4.0.1
 twine==3.5.0
