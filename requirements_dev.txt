@@ -3,7 +3,7 @@ pip==21.3.1
 wheel==0.37.0
 watchdog==2.1.6
 tox==3.24.4
-coverage==6.1.1
+coverage==6.1.2
 flake8==4.0.1
 twine==3.5.0
 codecov==2.1.12
@@ -13,6 +13,6 @@ Sphinx==4.2.0
 Click==8.0.3
 pytest-runner==5.3.1
 pydocstyle==6.1.1
-coverage==6.1.1
+coverage==6.1.2
 matplotlib==3.4.3
 -r requirements.txt
