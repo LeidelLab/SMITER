@@ -23,6 +23,7 @@ from smiter.ext.nucleoside_fragment_kb import (
     KB_FRAGMENTATION_INFO as pyrnams_nucleoside_fragment_kb,
 )
 from smiter.lib import calc_mz
+import chemical_composition
 
 try:
     from smiter.ext.nucleoside_fragment_kb import KB_FRAGMENTATION_INFO
@@ -124,14 +125,14 @@ class NucleosideFragmentor(AbstractFragmentor):
             raise_error_for_non_existing_fragments
         )
         nuc_to_fragments: Dict[str, List[float]] = {}
-        cc = pyqms.chemical_composition.ChemicalComposition()
+        cc = chemical_composition.ChemicalComposition()
         for nuc_name, nuc_dict in nucleoside_fragment_kb.items():
             nuc_to_fragments[nuc_name] = []
             for frag_name, frag_cc_dict in nucleoside_fragment_kb[nuc_name][
                 "fragments"
             ].items():
-                cc.use(f"+{frag_cc_dict['formula']}")
-                m = cc._mass()
+                cc.use(formula=f"+{frag_cc_dict['formula']}")
+                m = cc.mass()
                 nuc_to_fragments[nuc_name].append(calc_mz(m, 1))
         self.nuc_to_fragments = nuc_to_fragments
 
