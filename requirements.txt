@@ -1,5 +1,5 @@
 pymzml[plot]==2.4.7
-psims==0.1.30
+psims==1.2.9
 pyqms==0.6.4
 scipy==1.7.2
 git+https://github.com/MKoesters/peptide_fragments.git@feature/add_fragment_method
