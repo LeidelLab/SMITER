@@ -1,4 +1,4 @@
-pymzml[plot]==2.4.7
+pymzml[plot]==2.5.3
 psims==0.1.30
 pyqms==0.6.4
 scipy==1.7.2
