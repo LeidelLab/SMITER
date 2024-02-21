@@ -10,7 +10,7 @@ Sphinx==7.2.6
 codecov==2.1.13
 twine==5.0.0
 pytest==8.0.1
-Sphinx==4.2.0
+Sphinx==7.2.6
 pytest-runner==6.0.1
 Click==8.1.7
 pydocstyle==6.3.0
