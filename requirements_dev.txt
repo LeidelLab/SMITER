@@ -1,18 +1,18 @@
 bump2version==1.0.1
-pip==21.3.1
-wheel==0.37.1
-watchdog==2.1.6
-tox==3.24.4
-coverage==6.1.1
+pip==24.0
+wheel==0.42.0
+watchdog==4.0.0
+tox==4.13.0
+coverage==7.4.2
 flake8==4.0.1
-twine==4.0.1
+twine==5.0.0
 codecov==2.1.12
-twine==4.0.1
-pytest==6.2.5
+twine==5.0.0
+pytest==8.0.1
 Sphinx==4.2.0
 Click==8.1.2
 pytest-runner==5.3.1
 pydocstyle==6.2.3
-coverage==6.1.1
+coverage==7.4.2
 matplotlib==3.4.3
 -r requirements.txt
