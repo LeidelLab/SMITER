@@ -5,12 +5,12 @@ watchdog==4.0.0
 tox==4.13.0
 coverage==7.4.2
 flake8==4.0.1
+pytest-runner==6.0.1
 Sphinx==7.2.6
 codecov==2.1.13
 twine==5.0.0
 pytest==8.0.1
 Click==8.1.6
-pytest-runner==5.3.1
 pydocstyle==6.2.3
 coverage==7.4.2
 matplotlib==3.4.3
