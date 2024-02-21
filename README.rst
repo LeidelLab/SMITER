@@ -6,8 +6,7 @@ SMITER
 .. image:: https://img.shields.io/pypi/v/smiter.svg
         :target: https://pypi.python.org/pypi/smiter
 
-.. image:: https://api.travis-ci.com/LeidelLab/SMITER.svg?branch=dev
-        :target: https://travis-ci.com/LeidelLab/smiter
+.. image:: https://github.com/LeidelLab/SMITER/actions/workflows/python-app.yml/badge.svg
 
 .. image:: https://readthedocs.org/projects/smiter/badge/?version=latest
         :target: https://smiter.readthedocs.io/en/latest/?badge=latest
