@@ -6,11 +6,11 @@ watchdog==4.0.0
 tox==4.13.0
 coverage==7.4.2
 pytest-runner==6.0.1
-Sphinx==7.2.6
+Sphinx==7.3.7
 codecov==2.1.13
 twine==5.0.0
 pytest==8.0.1
-Sphinx==7.2.6
+Sphinx==7.3.7
 Click==8.1.7
 pydocstyle==6.3.0
 coverage==7.4.2
