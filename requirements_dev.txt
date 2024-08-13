@@ -14,5 +14,5 @@ Sphinx==7.2.6
 Click==8.1.7
 pydocstyle==6.3.0
 coverage==7.4.2
-matplotlib==3.8.3
+matplotlib==3.9.2
 -r requirements.txt
