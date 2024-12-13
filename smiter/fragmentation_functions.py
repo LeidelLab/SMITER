@@ -3,6 +3,7 @@
 Upon calling the callabe, a list/np.array of mz and intensities should be returned.
 Arguments should be passed via *args and **kwargs
 """
+
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Union
 import sys

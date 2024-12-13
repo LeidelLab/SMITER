@@ -1,4 +1,5 @@
 """Core functionality."""
+
 import csv
 from io import TextIOWrapper
 from tempfile import _TemporaryFileWrapper

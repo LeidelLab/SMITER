@@ -1,4 +1,5 @@
 """Console script for smiter."""
+
 import sys
 
 import click

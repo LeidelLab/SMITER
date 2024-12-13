@@ -1,4 +1,5 @@
 """Main module."""
+
 import io
 import pathlib
 import time
