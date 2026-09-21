@@ -1,6 +1,8 @@
 """Main module."""
 
+import hashlib
 import io
+import json
 import pathlib
 import time
 import warnings
@@ -135,6 +137,7 @@ def write_mzml(
     fragmentor: AbstractFragmentor,
     noise_injector: AbstractNoiseInjector,
     mzml_params: Dict[str, Union[int, float, str]],
+    sign_with_mzprov: bool = False,
 ) -> str:
     """Write mzML file with chromatographic peaks and fragment spectra for the given molecules.
 
@@ -143,6 +146,8 @@ def write_mzml(
         molecules (List[str]): Description
         fragmentation_function (Callable[[str], List[Tuple[float, float]]], optional): Description
         peak_properties (Dict[str, dict], optional): Description
+        sign_with_mzprov (bool, optional): Sign the mzML with an mzprov provenance
+            sidecar declaring it SMITER-simulated; see sign_mzml_with_mzprov().
     """
     # check params and raise Exception(s) if necessary
     logger.info("Start generating mzML")
@@ -185,7 +190,59 @@ def write_mzml(
     path = pathlib.Path(file_path)
     summary_path = path.parent.resolve() / "molecule_summary.csv"
     peak_properties_to_csv(peak_properties, summary_path)
+    if sign_with_mzprov:
+        if not isinstance(file, str):
+            file.flush()
+        sign_mzml_with_mzprov(path, mzml_params, summary_path)
     return filename
+
+
+def sign_mzml_with_mzprov(
+    mzml_path: Union[str, pathlib.Path],
+    mzml_params: Dict[str, Union[int, float, str]],
+    summary_path: Union[str, pathlib.Path],
+) -> pathlib.Path:
+    """Sign a SMITER mzML with mzprov (https://github.com/mzprov/mzprov).
+
+    Writes ``<stem>.smiter_params.json`` beside the mzML, holding the simulation
+    parameters and the SHA-256 of the molecule summary (the ground truth), and
+    signs the mzML with that file as its configuration. The resulting
+    ``<stem>.provenance.json`` declares the file SMITER-simulated. mzprov keeps
+    the signed copy of the parameters as ``<stem>.config.toml``, and
+    ``mzprov verify <mzML>`` detects any later change to the spectra or to that
+    copy. The ground truth is bound through the hash recorded in the parameters.
+    The first signature generates a local signing key.
+
+    Requires the optional dependency: ``pip install smiter[mzprov]``.
+
+    Returns:
+        pathlib.Path: path of the provenance sidecar
+    """
+    try:
+        from mzprov import sign_mzml_output
+    except ImportError as e:
+        raise ImportError(
+            "sign_with_mzprov needs mzprov: pip install smiter[mzprov]"
+        ) from e
+    mzml_path = pathlib.Path(mzml_path)
+    summary_path = pathlib.Path(summary_path)
+    config = {
+        "mzml_params": mzml_params,
+        "molecule_summary_sha256": hashlib.sha256(
+            summary_path.read_bytes()
+        ).hexdigest(),
+    }
+    config_path = mzml_path.with_name(mzml_path.stem + ".smiter_params.json")
+    config_path.write_text(json.dumps(config, sort_keys=True, indent=2, default=str))
+    sidecar = sign_mzml_output(
+        mzml_path=mzml_path,
+        config_path=config_path,
+        experiment_name=mzml_path.stem,
+        tool_name="SMITER",
+        tool_version=smiter.__version__,
+    )
+    logger.info(f"Signed {mzml_path} with mzprov: {sidecar}")
+    return sidecar
 
 
 # @profile

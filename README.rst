@@ -39,11 +39,14 @@ Features
 * feature scaling by gauss-, gamma- and exponentially-modified gaussian distributions
 * m/z-and intensity noise injection ( uniform noise or a noise model that combines general noise with intensity-specific noise)
 * MS2 fragmentation for peptides and modified nucleosides.
+* optional signing of the simulated mzML with `mzprov`_ (``write_mzml(..., sign_with_mzprov=True)``, ``pip install smiter[mzprov]``), declaring it simulated and making later edits detectable
 * Free software: MIT license
 * Documentation: https://smiter.readthedocs.io.
 
 .. _pyQms:
 	https://github.com/pyQms/pyqms
+.. _mzprov:
+	https://github.com/mzprov/mzprov
 
 Download and Installation
 -------------------------
