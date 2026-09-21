@@ -42,6 +42,7 @@ setup(
         ],
     },
     install_requires=requirements,
+    extras_require={"mzprov": ["mzprov>=0.1.2"]},
     license="MIT license",
     long_description=readme + "\n\n" + history,
     include_package_data=True,

@@ -1,3 +1,5 @@
+import hashlib
+import json
 from tempfile import NamedTemporaryFile
 
 import numpy as np
@@ -619,3 +621,59 @@ def test_dynacmic_exclusion():
     assert number_fragment_specs == 1
 
     # breakpoint()
+
+
+def _inosine_mzml(path, **kwargs):
+    peak_props = {
+        "inosine": {
+            "chemical_formula": "+C(10)H(12)N(4)O(5)",
+            "trivial_name": "inosine",
+            "charge": 2,
+            "scan_start_time": 0,
+            "peak_width": 30,  # seconds
+            "peak_function": None,
+            "peak_params": {},
+        }
+    }
+    return write_mzml(
+        str(path),
+        peak_props,
+        fragmentor,
+        GaussNoiseInjector(variance=0.0),
+        {"gradient_length": 30},
+        **kwargs,
+    )
+
+
+def test_write_mzml_signed_with_mzprov(tmp_path, monkeypatch):
+    """sign_with_mzprov writes a sidecar that verifies, and binds the ground truth."""
+    mzprov = pytest.importorskip("mzprov")
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+
+    mzml_path = _inosine_mzml(tmp_path / "inosine.mzML", sign_with_mzprov=True)
+
+    sidecar = tmp_path / "inosine.provenance.json"
+    assert (tmp_path / "inosine.smiter_params.json").is_file()
+    result = mzprov.verify_sidecar(sidecar)
+    assert result.overall_ok
+    assert result.payload.tool_name == "SMITER"
+    assert result.payload.tool_version == smiter.__version__
+    assert pymzml.run.Reader(mzml_path).get_spectrum_count() == 1000
+
+    # The signed parameters record the ground truth's hash.
+    params = json.loads((tmp_path / "inosine.smiter_params.json").read_text())
+    summary = (tmp_path / "molecule_summary.csv").read_bytes()
+    assert params["molecule_summary_sha256"] == hashlib.sha256(summary).hexdigest()
+
+    # Editing the signed copy of the parameters afterwards fails verification.
+    signed_copy = tmp_path / "inosine.config.toml"
+    assert json.loads(signed_copy.read_text()) == params
+    params["mzml_params"]["gradient_length"] = 60
+    signed_copy.write_text(json.dumps(params))
+    assert not mzprov.verify_sidecar(sidecar).overall_ok
+
+
+def test_write_mzml_unsigned_by_default(tmp_path):
+    _inosine_mzml(tmp_path / "plain.mzML")
+    assert not (tmp_path / "plain.provenance.json").exists()
+    assert not (tmp_path / "plain.smiter_params.json").exists()
